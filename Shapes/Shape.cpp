@@ -10,6 +10,7 @@ float CShape::z_max = 0;
 
 CShape::CShape(
     CDC* pDC,
+    CView* pView,
     const float& z,
     const int& x,
     const int& y,
@@ -17,6 +18,7 @@ CShape::CShape(
     const BorderWidth& border_width,
     const Color& border_color) :
     pDC(pDC),
+    pView(pView),
     z(z),
     new_x(x),
     new_y(y),
@@ -33,8 +35,10 @@ CShape::CShape(
 }
 
 CShape::CShape(
-    CDC* pDC) :
+    CDC* pDC,
+    CView* pView) :
     pDC(pDC),
+    pView(pView),
     new_x(-1),
     new_y(-1),
     z(-1),

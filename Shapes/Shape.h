@@ -21,6 +21,7 @@ public:
     CShape() = default;
     CShape(
         CDC* pDC,
+        CView* PView,
         const float& z,
         const int& x,
         const int& y,
@@ -29,7 +30,8 @@ public:
         const Color& border_color
     );
     CShape(
-        CDC* pDC
+        CDC* pDC,
+        CView* PView
     );
     
     virtual ~CShape() = default;
@@ -72,6 +74,7 @@ protected:
     const static int LENGTH;
     // A CDC pointer to draw shape.
     CDC* pDC;
+    CView* pView;
 
     // the max z pos
     static float z_max;
