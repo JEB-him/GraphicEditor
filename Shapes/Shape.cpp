@@ -1,18 +1,19 @@
+#include "pch.h"
 #include "Shape.h"
 
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 
-const float CShape::LENGTH = 1;
+const int CShape::LENGTH = 1;
 float CShape::z_max = 0;
 
 CShape::CShape(
-    const CDC* pDC,
+    CDC* pDC,
     const float& z,
-    const float& x,
-    const float& y,
-    const float& filled_color,
+    const int& x,
+    const int& y,
+    const int& filled_color,
     const BorderWidth& border_width,
     const Color& border_color) :
     pDC(pDC),
@@ -32,10 +33,11 @@ CShape::CShape(
 }
 
 CShape::CShape(
-    const CDC* pDC) : 
+    CDC* pDC) :
     pDC(pDC),
     new_x(-1),
     new_y(-1),
+    z(-1),
     new_bwidth(-1),
     new_bheight(-1),
     old_x(-1),
@@ -65,8 +67,8 @@ bool CShape::update() {
 CCommand CShape::move(const int& x, const int& y) {
     CRect clipBox;
     pDC->GetClipBox(&clipBox);  // 获取设备上下文的裁剪区域
-    float width = static_cast<float>(clipBox.Width());
-    float height = static_cast<float>(clipBox.Height());
+    int width  = clipBox.Width();
+    int height = clipBox.Height();
 
     if (x < 0 || y < 0 || x > width || y > height) {
         throw std::logic_error("x/y is invalid.");
@@ -92,7 +94,7 @@ CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
         throw std::logic_error("x/y is invalid.");
     }
     // TODO: mirror scaling function need be added.
-    // float mult = std::abs(mouse_x - new_x) / new_bwidth >
+    // int mult = std::abs(mouse_x - new_x) / new_bwidth >
     //              std::abs(mouse_y - new_y) / new_bheight ? 
     //              std::abs(mouse_x - new_x) / new_bwidth :
     //              std::abs(mouse_y - new_y) / new_bheight;
@@ -104,7 +106,7 @@ CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
         return {};
     }
 
-    float mult = mouse_x - new_x / new_bwidth >
+    int mult = mouse_x - new_x / new_bwidth >
                  mouse_y - new_y / new_bheight ? 
                  mouse_x - new_x / new_bwidth :
                  mouse_y - new_y / new_bheight;

@@ -2,10 +2,10 @@
 #pragma once
 
 #include "afxwin.h"
-#include "../Command.h"
+#include "Command.h"
 
 typedef COLORREF Color;
-typedef float BorderWidth;
+typedef int BorderWidth;
 
 enum class EditMode {
     // SELECT will be used in the case when father item is selected
@@ -22,9 +22,9 @@ public:
     CShape(
         CDC* pDC,
         const float& z,
-        const float& x,
-        const float& y,
-        const float& filled_color,
+        const int& x,
+        const int& y,
+        const int& filled_color,
         const BorderWidth& border_width,
         const Color& border_color
     );
@@ -65,11 +65,11 @@ public:
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
      */
-    virtual CCommand rotate(float angle) = 0;
+    virtual CCommand rotate(int angle) = 0;
 
 protected:
     // The initial width and height of a shape
-    const static float LENGTH;
+    const static int LENGTH;
     // A CDC pointer to draw shape.
     CDC* pDC;
 
@@ -87,16 +87,16 @@ protected:
     // |                |
     // |                |
     // (0, +) ---- (+, +)
-    float old_x;
-    float old_y;
-    float old_bwidth;
-    float old_bheight;
+    int old_x;
+    int old_y;
+    int old_bwidth;
+    int old_bheight;
 
     // New smallest rectangle
-    float new_x;
-    float new_y;
-    float new_bwidth;
-    float new_bheight;
+    int new_x;
+    int new_y;
+    int new_bwidth;
+    int new_bheight;
 
     // padding
     Color filled_color;
