@@ -1,5 +1,4 @@
 #include "Shape.h"
-#include "../Command.h"
 
 #include <cmath>
 #include <stdexcept>
@@ -20,12 +19,12 @@ CShape::CShape(
     z(z),
     new_x(x),
     new_y(y),
-    new_width(LENGTH),
-    new_height(LENGTH),
+    new_bwidth(LENGTH),
+    new_bheight(LENGTH),
     old_x(x),
     old_y(y),
-    old_width(LENGTH),
-    old_height(LENGTH),
+    old_bwidth(LENGTH),
+    old_bheight(LENGTH),
     filled_color(filled_color),
     border_width(border_width),
     border_color(border_color),
@@ -37,12 +36,12 @@ CShape::CShape(
     pDC(pDC),
     new_x(-1),
     new_y(-1),
-    new_width(-1),
-    new_height(-1),
+    new_bwidth(-1),
+    new_bheight(-1),
     old_x(-1),
     old_y(-1),
-    old_width(-1),
-    old_height(-1),
+    old_bwidth(-1),
+    old_bheight(-1),
     filled_color(),
     border_width(),
     border_color(),
@@ -50,10 +49,10 @@ CShape::CShape(
 }
 
 bool CShape::update() {
-    old_x      = new_x;
-    old_y      = new_y;
-    old_width  = new_width;
-    old_height = new_height;
+    old_x       = new_x;
+    old_y       = new_y;
+    old_bwidth  = new_bwidth;
+    old_bheight = new_bheight;
 
     return false;
 } 
@@ -73,11 +72,11 @@ CCommand CShape::move(const int& x, const int& y) {
         throw std::logic_error("x/y is invalid.");
     }
 
-    if (!(width - x < new_width)) {
+    if (!(width - x < new_bwidth)) {
         new_x = x;
     }
 
-    if (!(height - y < new_height)) {
+    if (!(height - y < new_bheight)) {
         new_y = y;
     }
 
@@ -93,10 +92,10 @@ CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
         throw std::logic_error("x/y is invalid.");
     }
     // TODO: mirror scaling function need be added.
-    // float mult = std::abs(mouse_x - new_x) / new_width >
-    //              std::abs(mouse_y - new_y) / new_height ? 
-    //              std::abs(mouse_x - new_x) / new_width :
-    //              std::abs(mouse_y - new_y) / new_height;
+    // float mult = std::abs(mouse_x - new_x) / new_bwidth >
+    //              std::abs(mouse_y - new_y) / new_bheight ? 
+    //              std::abs(mouse_x - new_x) / new_bwidth :
+    //              std::abs(mouse_y - new_y) / new_bheight;
 
     // TODO: If the width/length is set to 0 after the left mouse
     // button is released, the controller should react to this r-
@@ -105,13 +104,13 @@ CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
         return {};
     }
 
-    float mult = mouse_x - new_x / new_width >
-                 mouse_y - new_y / new_height ? 
-                 mouse_x - new_x / new_width :
-                 mouse_y - new_y / new_height;
+    float mult = mouse_x - new_x / new_bwidth >
+                 mouse_y - new_y / new_bheight ? 
+                 mouse_x - new_x / new_bwidth :
+                 mouse_y - new_y / new_bheight;
 
-    new_width  *= mult;
-    new_height *= mult;
+    new_bwidth  *= mult;
+    new_bheight *= mult;
 
     return {};
 }

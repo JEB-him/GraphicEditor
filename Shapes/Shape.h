@@ -2,6 +2,7 @@
 #pragma once
 
 #include "afxwin.h"
+#include "../Command.h"
 
 typedef int Color;
 typedef float BorderWidth;
@@ -15,9 +16,7 @@ enum class EditMode {
     DELETED = 0b1000
 };
 
-class CCommand;
-
-class CShape {
+class CShape : public CObject {
 public:
     CShape() = default;
     CShape(
@@ -68,7 +67,7 @@ public:
      */
     virtual CCommand rotate(float angle) = 0;
 
-private:
+protected:
     // The initial width and height of a shape
     const static float LENGTH;
     // A CDC pointer to draw shape.
@@ -90,14 +89,14 @@ private:
     // (0, +) ---- (+, +)
     float old_x;
     float old_y;
-    float old_width;
-    float old_height;
+    float old_bwidth;
+    float old_bheight;
 
     // New smallest rectangle
     float new_x;
     float new_y;
-    float new_width;
-    float new_height;
+    float new_bwidth;
+    float new_bheight;
 
     // padding
     Color filled_color;
