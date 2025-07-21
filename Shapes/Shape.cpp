@@ -24,10 +24,10 @@ CShape::CShape(
     new_y(y),
     new_bwidth(LENGTH),
     new_bheight(LENGTH),
-    old_x(x),
-    old_y(y),
-    old_bwidth(LENGTH),
-    old_bheight(LENGTH),
+    old_x(-1),
+    old_y(-1),
+    old_bwidth(-1),
+    old_bheight(-1),
     filled_color(filled_color),
     border_width(border_width),
     border_color(border_color),
@@ -52,6 +52,11 @@ CShape::CShape(
     border_width(),
     border_color(),
     mode() {
+}
+
+bool CShape::setMode(EditMode mode) {
+    this->mode = mode;
+    return true;
 }
 
 bool CShape::update() {
@@ -111,6 +116,12 @@ CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
     // button is released, the controller should react to this r-
     // eset the size of the shape.
     if (mouse_x < new_x || mouse_y < new_y) {
+        return {};
+    }
+
+    if (mode & EditMode::CREATE) {
+        new_bwidth  = mouse_x - new_x;
+        new_bheight = mouse_y - new_y;
         return {};
     }
 

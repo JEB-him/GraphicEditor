@@ -54,10 +54,13 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Shapes\Shape.h">
+    <ClInclude Include="Shapes\Circle.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Command.h">
+    <ClInclude Include="Shapes\Rectangle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes\Shape.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,10 +95,13 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Shapes\Shape.cpp">
+    <ClCompile Include="Shapes\Circle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Command.cpp">
+    <ClCompile Include="Shapes\Rectangle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Shapes\Shape.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

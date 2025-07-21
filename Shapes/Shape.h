@@ -7,17 +7,21 @@
 typedef COLORREF Color;
 typedef int BorderWidth;
 
-enum class EditMode {
+enum EditMode : unsigned int{
     // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
-    SELECT  = 0b0001,  
-    SCALE   = 0b0010,
-    ROTATE  = 0b0100,
-    DELETED = 0b1000
+    SELECT  = 0b00001,  
+    SCALE   = 0b00010,
+    ROTATE  = 0b00100,
+    DELETED = 0b01000,
+    CREATE  = 0b10000
 };
 
 class CShape : public CObject {
 public:
+    // the max z pos
+    static float z_max;
+
     CShape() = default;
     CShape(
         CDC* pDC,
@@ -33,6 +37,8 @@ public:
         CDC* pDC,
         CView* PView
     );
+
+    bool setMode(EditMode mode);
     
     virtual ~CShape() = default;
 
@@ -67,7 +73,7 @@ public:
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
      */
-    virtual CCommand rotate(int angle) = 0;
+    virtual CCommand rotate(float angle) = 0;
 
 protected:
     // The initial width and height of a shape
@@ -76,8 +82,6 @@ protected:
     CDC* pDC;
     CView* pView;
 
-    // the max z pos
-    static float z_max;
     // z pos
     // The range is [0, 100)
     // In any edit mode, the z will lose efficacy and
@@ -109,5 +113,5 @@ protected:
     Color border_color;
 
     // Mode
-    int mode;
+    EditMode mode;
 };

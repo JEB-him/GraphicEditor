@@ -13,6 +13,10 @@
 #include "GraphicEditorDoc.h"
 #include "GraphicEditorView.h"
 
+// Shapes
+#include "Shapes/Shape.h"
+#include "Shapes/Rectangle.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -53,9 +57,23 @@ BOOL CGraphicEditorView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CGraphicEditorView 绘图
 
-void CGraphicEditorView::OnDraw(CDC* /*pDC*/)
+void CGraphicEditorView::OnDraw(CDC* pDC)
 {
 	CGraphicEditorDoc* pDoc = GetDocument();
+	/*========= Test ========*/
+	int x = 2, y = 2;
+	int mx = 70, my = 50;
+	CShape::z_max++;
+	CRectangle rec {pDC, this, 1, x, y, RGB(0, 0, 255), 2, RGB(255, 0, 0)};
+	rec.setMode(EditMode::CREATE);
+	rec.scale(mx, my);
+	rec.draw();
+	CRectangle rec1{ pDC, this, 1, 50, 30, RGB(0, 212, 255), 2, RGB(255, 112, 0) };
+	rec1.setMode(EditMode::CREATE);
+	rec1.scale(mx, my);
+	rec1.draw();
+	return;
+	/*======= Test End ======*/
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
