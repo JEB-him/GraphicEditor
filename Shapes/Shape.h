@@ -60,7 +60,7 @@ public:
     virtual CCommand modifyBorder(const Color& border_color, const int& border_width);
 
     // Pure virtual functions.
-    virtual void draw() const = 0;
+    virtual bool draw() const = 0;
     /**
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
