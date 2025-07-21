@@ -69,10 +69,11 @@ bool CShape::update() {
  * @return
  */
 CCommand CShape::move(const int& x, const int& y) {
-    CRect clipBox;
-    pDC->GetClipBox(&clipBox);  // 获取设备上下文的裁剪区域
-    int width  = clipBox.Width();
-    int height = clipBox.Height();
+    CRect clientRect;
+    pView->GetClientRect(&clientRect);
+
+    int width  = clientRect.Width();
+    int height = clientRect.Height();
 
     if (x < 0 || y < 0 || x > width || y > height) {
         throw std::logic_error("x/y is invalid.");
