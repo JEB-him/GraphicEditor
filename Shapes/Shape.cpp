@@ -92,10 +92,13 @@ CCommand CShape::move(const int& x, const int& y) {
 }
 
 CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
-    CRect clipBox;
-    pDC->GetClipBox(&clipBox);  // 获取设备上下文的裁剪区域
+    CRect clientRect;
+    pView->GetClientRect(&clientRect);
 
-    if (mouse_x < 0 || mouse_y < 0 || mouse_x > clipBox.Width() || mouse_y > clipBox.Height()) {
+    int width  = clientRect.Width();
+    int height = clientRect.Height();
+
+    if (mouse_x < 0 || mouse_y < 0 || mouse_x > clientRect.Width() || mouse_y > clientRect.Height()) {
         throw std::logic_error("x/y is invalid.");
     }
     // TODO: mirror scaling function need be added.
