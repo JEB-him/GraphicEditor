@@ -39,12 +39,12 @@ public:
     virtual bool update();
     /**
      * @brief move the shape or the combination
-     * @note  the combination neeed a unique implemention.
+     * @note  The combination needs a unique implemention.
      */
     virtual CCommand move(const int& x, const int& y);
     /**
      * @brief scale the shape or the combination
-     * @note  the combination neeed a unique implemention.
+     * @note  Every children class needs a unique implemention.
      */
     virtual CCommand scale(const int& mouse_x, const int& mouse_y);
     /**
@@ -60,7 +60,7 @@ public:
     virtual CCommand modifyBorder(const Color& border_color, const int& border_width);
 
     // Pure virtual functions.
-    virtual void draw(CDC* pDC) const = 0;
+    virtual void draw() const = 0;
     /**
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
