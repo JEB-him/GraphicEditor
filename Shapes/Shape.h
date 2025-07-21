@@ -4,7 +4,7 @@
 #include "afxwin.h"
 #include "../Command.h"
 
-typedef int Color;
+typedef COLORREF Color;
 typedef float BorderWidth;
 
 enum class EditMode {
@@ -20,7 +20,7 @@ class CShape : public CObject {
 public:
     CShape() = default;
     CShape(
-        const CDC* pDC,
+        CDC* pDC,
         const float& z,
         const float& x,
         const float& y,
@@ -29,7 +29,7 @@ public:
         const Color& border_color
     );
     CShape(
-        const CDC* pDC
+        CDC* pDC
     );
     
     virtual ~CShape() = default;
@@ -71,7 +71,7 @@ protected:
     // The initial width and height of a shape
     const static float LENGTH;
     // A CDC pointer to draw shape.
-    const CDC* pDC;
+    CDC* pDC;
 
     // the max z pos
     static float z_max;
