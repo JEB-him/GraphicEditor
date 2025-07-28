@@ -5,12 +5,15 @@
 #include "Command.h"
 
 typedef COLORREF Color;
-typedef int BorderWidth;
+typedef int      BorderWidth;
+typedef int      BorderStyle;
+
+constexpr Color BRUSH_TRANSPARENT = RGB(255, 255, 255);
 
 enum EditMode : unsigned int{
     // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
-    SELECT  = 0b00001,  
+    SELECT  = 0b00001,
     SCALE   = 0b00010,
     ROTATE  = 0b00100,
     DELETED = 0b01000,
@@ -24,27 +27,30 @@ public:
 
     CShape() = default;
     CShape(
-        CDC* pDC,
         CView* PView,
         const float& z,
         const int& x,
         const int& y,
-        const int& filled_color,
+        const Color& filled_color,
         const BorderWidth& border_width,
-        const Color& border_color
+        const Color& border_color,
+        const BorderStyle border_style
     );
+
+    // The combination needn't set layer.
     CShape(
-        CDC* pDC,
         CView* PView
     );
 
     bool setMode(EditMode mode);
-    
+
     virtual ~CShape() = default;
 
     
     // Virtual functions.
     virtual bool update();
+    // Must react to window-resize event.
+    virtual bool resize();
     /**
      * @brief move the shape or the combination
      * @note  The combination needs a unique implemention.
@@ -67,8 +73,13 @@ public:
      */
     virtual CCommand modifyBorder(const Color& border_color, const int& border_width);
 
+    /**
+     * @brief Copy the memory CDC of the shape to pDC.
+     */
+    virtual bool copyTo(CDC* p_target_dc, int x, int y);
+
     // Pure virtual functions.
-    virtual bool draw() const = 0;
+    virtual bool draw() = 0;
     /**
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
@@ -78,9 +89,12 @@ public:
 protected:
     // The initial width and height of a shape
     const static int LENGTH;
-    // A CDC pointer to draw shape.
-    CDC* pDC;
-    CView* pView;
+    // A individual memory CDC for per shape.
+    CDC     memDC;
+    // A bitmap for memDC.
+    CBitmap bitmap;
+    // A pointer point to view.
+    CView*  pView;
 
     // z pos
     // The range is [0, 100)
@@ -109,6 +123,7 @@ protected:
     Color filled_color;
 
     // Border
+    BorderStyle border_style;
     BorderWidth border_width;
     Color border_color;
 

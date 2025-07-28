@@ -57,28 +57,49 @@ BOOL CGraphicEditorView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CGraphicEditorView 绘图
 
+
 void CGraphicEditorView::OnDraw(CDC* pDC)
 {
-	CGraphicEditorDoc* pDoc = GetDocument();
-	/*========= Test ========*/
-	int x = 2, y = 2;
-	int mx = 70, my = 50;
-	CShape::z_max++;
-	CRectangle rec {pDC, this, 1, x, y, RGB(0, 0, 255), 2, RGB(255, 0, 0)};
-	rec.setMode(EditMode::CREATE);
-	rec.scale(mx, my);
-	rec.draw();
-	CRectangle rec1{ pDC, this, 1, 50, 30, RGB(0, 212, 255), 2, RGB(255, 112, 0) };
-	rec1.setMode(EditMode::CREATE);
-	rec1.scale(mx, my);
-	rec1.draw();
-	return;
-	/*======= Test End ======*/
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
+  CGraphicEditorDoc* pDoc = GetDocument();
+  // Create a memDC to composite all layers.
+  CDC     memDC;
+  CBitmap bitmap;
+  CRect   rect;
+  // Get the size of view.
+  GetClientRect(&rect);
+  // Initialize the memDC based on the pDC.
+  memDC.CreateCompatibleDC(pDC);
+  // Initialize the bit map.
+  bitmap.CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+  memDC.SelectObject(&bitmap);
+  memDC.FillSolidRect(rect, RGB(255, 255, 255)); // 背景色
+                                                 // Screen size
+  int width  = rect.Width();
+  int height = rect.Height();
 
-	// TODO: 在此处为本机数据添加绘制代码
+  /*========= Test ========*/
+  CRectangle rect1 {this, 1, 0, 0, RGB(255, 0, 0), 2, RGB(0, 255, 0), PS_SOLID};
+  CRectangle rect2 {this, 1, 10, 20, RGB(0, 255, 0), 2, RGB(0, 0, 255), PS_SOLID};
+  rect1.setMode(EditMode::CREATE);
+  rect1.scale(50, 60);
+  rect1.draw();
+  rect2.setMode(EditMode::CREATE);
+  rect2.scale(70, 40);
+  rect2.draw();
+
+  // 按顺序合并图层
+  rect2.copyTo(&memDC, 0, 0);
+  rect1.copyTo(&memDC, 0, 0);
+  // 将合并结果绘制到视图
+  pDC->BitBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, SRCCOPY);
+  return;
+
+  /*======= Test End ======*/
+  ASSERT_VALID(pDoc);
+  if (!pDoc)
+    return;
+
+  // TODO: 在此处为本机数据添加绘制代码
 }
 
 

@@ -36,6 +36,7 @@ public:
 #endif
 
 protected:
+	CObArray m_layers; // 图层列表
 
 // 生成的消息映射函数
 protected:

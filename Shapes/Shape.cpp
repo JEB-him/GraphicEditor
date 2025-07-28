@@ -9,15 +9,14 @@ const int CShape::LENGTH = 1;
 float CShape::z_max = 0;
 
 CShape::CShape(
-    CDC* pDC,
     CView* pView,
     const float& z,
     const int& x,
     const int& y,
-    const int& filled_color,
+    const Color& filled_color,
     const BorderWidth& border_width,
-    const Color& border_color) :
-    pDC(pDC),
+    const Color& border_color,
+    const BorderStyle border_style) :
     pView(pView),
     z(z),
     new_x(x),
@@ -31,13 +30,26 @@ CShape::CShape(
     filled_color(filled_color),
     border_width(border_width),
     border_color(border_color),
+    border_style(border_style),
     mode() {
+    CRect clientRect;
+    pView->GetClientRect(&clientRect);
+
+    int width  = clientRect.Width();
+    int height = clientRect.Height();
+     // 创建兼容的内存DC和位图
+    CClientDC dc(NULL); // 屏幕DC
+    memDC.CreateCompatibleDC(&dc);
+    bitmap.CreateCompatibleBitmap(&dc, width, height);
+    memDC.SelectObject(&bitmap);
+
+    // 初始化为透明背景
+    // I think theese two lines are redundant.
+    memDC.FillSolidRect(0, 0, width, height, RGB(255, 255, 255));
 }
 
 CShape::CShape(
-    CDC* pDC,
     CView* pView) :
-    pDC(pDC),
     pView(pView),
     new_x(-1),
     new_y(-1),
@@ -51,6 +63,7 @@ CShape::CShape(
     filled_color(),
     border_width(),
     border_color(),
+    border_style(),
     mode() {
 }
 
@@ -64,9 +77,12 @@ bool CShape::update() {
     old_y       = new_y;
     old_bwidth  = new_bwidth;
     old_bheight = new_bheight;
+    return true;
+}
 
+bool CShape::resize() {
     return false;
-} 
+}
 
 /**
  * @param x
@@ -154,4 +170,21 @@ CCommand CShape::modifyBorder(const Color& border_color, const int& border_width
     this->border_width = border_width;
 
     return {};
+}
+
+bool CShape::copyTo(CDC* p_target_dc, int x, int y) {
+    // TODO: Throw a exception: pointer pointing to the object of C-
+    // Combination shouldn't call the function.
+    CRect clientRect;
+    pView->GetClientRect(&clientRect);
+    int width  = clientRect.Width();
+    int height = clientRect.Height();
+
+    p_target_dc->TransparentBlt(
+        x, y, width, height,
+        &memDC,
+        0, 0, width, height,
+        RGB(255, 255, 255) // 指定透明色
+    );
+    return true;
 }
