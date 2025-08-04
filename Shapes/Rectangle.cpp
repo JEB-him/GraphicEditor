@@ -30,49 +30,33 @@ CCommand CRectangle::scale(const int& mouse_x, const int& mouse_y) {
     return cmd;
 }
 
-bool CRectangle::draw() {
-    /* The old deplemention. */
-    /*
-    // TODO: draw border, shape.
-    // Use solid brush as default.
-    // 获取客户区大小
-    CRect clientRect;
-    pView->GetClientRect(&clientRect);  // 获取窗口客户区的尺寸
+bool CRectangle::draw(Gdiplus::Graphics& graphics) {
+    // 创建画笔和画刷
+    Gdiplus::Pen pen(Gdiplus::Color(255, 
+                     GetRValue(border_color), 
+                     GetGValue(border_color), 
+                     GetBValue(border_color)), 
+                     static_cast<Gdiplus::REAL>(border_width));
 
-    // 创建内存设备上下文
-    CDC memDC;
-    memDC.CreateCompatibleDC(pDC);
+    Gdiplus::SolidBrush brush(Gdiplus::Color(255, 
+                     GetRValue(filled_color), 
+                     GetGValue(filled_color), 
+                     GetBValue(filled_color)));
 
-    CBitmap bitmap;
-    bitmap.CreateCompatibleBitmap(pDC, new_bwidth, new_bheight);
-    CBitmap* pOldBitmap = memDC.SelectObject(&bitmap);
+    // 绘制填充矩形
+    graphics.FillRectangle(&brush, 
+                          static_cast<INT>(new_x), 
+                          static_cast<INT>(new_y), 
+                          static_cast<INT>(width), 
+                          static_cast<INT>(height));
 
-    // 绘制矩形
-    memDC.FillSolidRect(0, 0, width, height, filled_color);
-
-    // 将内存中的图像复制到屏幕设备上下文
-    pDC->BitBlt(new_x, new_y, clientRect.Width(), clientRect.Height(), &memDC, 0, 0, SRCCOPY);
-
-    // 恢复内存设备上下文的位图
-    memDC.SelectObject(pOldBitmap);
+    // 绘制边框
+    graphics.DrawRectangle(&pen, 
+                           static_cast<INT>(new_x), 
+                           static_cast<INT>(new_y), 
+                           static_cast<INT>(width), 
+                           static_cast<INT>(height));
     return true;
-    */
-    CPen pen(border_style, border_width, border_color);
-    CBrush* pBrush;
-    if (filled_color == BRUSH_TRANSPARENT) {
-        pBrush = new CBrush();
-        pBrush->CreateStockObject(NULL_BRUSH);
-    } else {
-        pBrush = new CBrush(filled_color);
-    }
-
-    memDC.SelectObject(&pen);
-    memDC.SelectObject(pBrush);
-    memDC.Rectangle(new_x, new_y, new_x + width, new_y + height);
-
-    return true;
-
-    delete pBrush;
 }
 
 CCommand CRectangle::rotate(float angle) {

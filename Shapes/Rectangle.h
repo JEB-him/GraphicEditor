@@ -21,7 +21,7 @@ public:
 
     CCommand scale(const int& mouse_x, const int& mouse_y) override;
     CCommand rotate(float angle) override;
-    bool draw() override;
+    bool draw(Gdiplus::Graphics& graphics) override;
 
 private:
     int width;

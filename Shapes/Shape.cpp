@@ -23,48 +23,15 @@ CShape::CShape(
     new_y(y),
     new_bwidth(LENGTH),
     new_bheight(LENGTH),
-    old_x(-1),
-    old_y(-1),
-    old_bwidth(-1),
-    old_bheight(-1),
     filled_color(filled_color),
     border_width(border_width),
     border_color(border_color),
-    border_style(border_style),
-    mode() {
-    CRect clientRect;
-    pView->GetClientRect(&clientRect);
-
-    int width  = clientRect.Width();
-    int height = clientRect.Height();
-     // 创建兼容的内存DC和位图
-    CClientDC dc(NULL); // 屏幕DC
-    memDC.CreateCompatibleDC(&dc);
-    bitmap.CreateCompatibleBitmap(&dc, width, height);
-    memDC.SelectObject(&bitmap);
-
-    // 初始化为透明背景
-    // I think theese two lines are redundant.
-    memDC.FillSolidRect(0, 0, width, height, RGB(255, 255, 255));
+    border_style(border_style) {
 }
 
 CShape::CShape(
     CView* pView) :
-    pView(pView),
-    new_x(-1),
-    new_y(-1),
-    z(-1),
-    new_bwidth(-1),
-    new_bheight(-1),
-    old_x(-1),
-    old_y(-1),
-    old_bwidth(-1),
-    old_bheight(-1),
-    filled_color(),
-    border_width(),
-    border_color(),
-    border_style(),
-    mode() {
+    pView(pView) {
 }
 
 bool CShape::setMode(EditMode mode) {
@@ -170,21 +137,4 @@ CCommand CShape::modifyBorder(const Color& border_color, const int& border_width
     this->border_width = border_width;
 
     return {};
-}
-
-bool CShape::copyTo(CDC* p_target_dc, int x, int y) {
-    // TODO: Throw a exception: pointer pointing to the object of C-
-    // Combination shouldn't call the function.
-    CRect clientRect;
-    pView->GetClientRect(&clientRect);
-    int width  = clientRect.Width();
-    int height = clientRect.Height();
-
-    p_target_dc->TransparentBlt(
-        x, y, width, height,
-        &memDC,
-        0, 0, width, height,
-        RGB(255, 255, 255) // 指定透明色
-    );
-    return true;
 }

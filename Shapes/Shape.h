@@ -10,7 +10,7 @@ typedef int      BorderStyle;
 
 constexpr Color BRUSH_TRANSPARENT = RGB(255, 255, 255);
 
-enum EditMode : unsigned int{
+enum EditMode : unsigned int {
     // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
     SELECT  = 0b00001,
@@ -73,13 +73,8 @@ public:
      */
     virtual CCommand modifyBorder(const Color& border_color, const int& border_width);
 
-    /**
-     * @brief Copy the memory CDC of the shape to pDC.
-     */
-    virtual bool copyTo(CDC* p_target_dc, int x, int y);
-
     // Pure virtual functions.
-    virtual bool draw() = 0;
+    virtual bool draw(Gdiplus::Graphics & graphics) = 0;
     /**
      * @brief Rotate the graphic.
      * @note  Note the boundary of the window.
@@ -89,10 +84,6 @@ public:
 protected:
     // The initial width and height of a shape
     const static int LENGTH;
-    // A individual memory CDC for per shape.
-    CDC     memDC;
-    // A bitmap for memDC.
-    CBitmap bitmap;
     // A pointer point to view.
     CView*  pView;
 
@@ -100,7 +91,7 @@ protected:
     // The range is [0, 100)
     // In any edit mode, the z will lose efficacy and
     // the controller must draw the item at the end.
-    float z;
+    float z = -1;
 
     // Original smallest rectangle
     // Position, taken from the smallest x and smallest y.
@@ -108,25 +99,25 @@ protected:
     // |                |
     // |                |
     // (0, +) ---- (+, +)
-    int old_x;
-    int old_y;
-    int old_bwidth;
-    int old_bheight;
+    int old_x       = -1;
+    int old_y       = -1;
+    int old_bwidth  = -1;
+    int old_bheight = -1;
 
     // New smallest rectangle
-    int new_x;
-    int new_y;
-    int new_bwidth;
-    int new_bheight;
+    int new_x       = -1;
+    int new_y       = -1;
+    int new_bwidth  = -1;
+    int new_bheight = -1;
 
     // padding
-    Color filled_color;
+    Color filled_color {};
 
     // Border
-    BorderStyle border_style;
-    BorderWidth border_width;
-    Color border_color;
+    BorderStyle border_style {};
+    BorderWidth border_width {};
+    Color border_color {};
 
     // Mode
-    EditMode mode;
+    EditMode mode = EditMode::CREATE;
 };
