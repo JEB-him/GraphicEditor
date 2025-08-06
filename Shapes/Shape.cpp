@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <iostream>
 
-const int CShape::LENGTH = 1;
+const int CShape::LENGTH = 20;
 float CShape::z_max = 0;
 
 CShape::CShape(
@@ -31,14 +31,29 @@ CShape::CShape(
     ) {
 }
 
-bool CShape::setMode(EditMode mode) {
-    this->mode = mode;
-    return true;
-}
-
 const float& CShape::getZ() const
 {
     return this->z;
+}
+
+const unsigned int& CShape::getMode() const {
+    return this->mode;
+}
+
+int CShape::addMode(const unsigned int& mode) {
+    if (this->mode & mode) {
+        return 1;
+    }
+    this->mode |= mode;
+    return 0;
+}
+
+int CShape::setMode(const unsigned int& mode) {
+    if (this->mode == mode) {
+        return 1;
+    }
+    this->mode = mode;
+    return 0;
 }
 
 // 序列化方法
@@ -116,7 +131,7 @@ CCommand CShape::move(CView* pView, const int& x, const int& y) {
         new_y = y;
     }
 
-    // TODO: implement return statement.
+    // TODO: implement return statezment.
     return {};
 }
 

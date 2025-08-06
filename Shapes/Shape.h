@@ -10,8 +10,7 @@ typedef int      BorderStyle;
 
 constexpr Color BRUSH_TRANSPARENT = RGB(255, 255, 255);
 
-enum EditMode : unsigned int {
-    // SELECT will be used in the case when father item is selected
+enum EditMode : unsigned int { // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
     NONE    = 0b00000,
     SELECT  = 0b00001,
@@ -42,10 +41,11 @@ public:
     );
 
     // TODO copy constructor
-
-    bool setMode(EditMode mode);
-
     const float& getZ() const;
+    const unsigned int& getMode() const;
+    int addMode(const unsigned int& mode);
+    // TODO: Should overrided by combination.
+    virtual int setMode(const unsigned int& mode);
 
     virtual ~CShape() = default;
 
@@ -126,5 +126,5 @@ protected:
     Color border_color {};
 
     // Mode
-    EditMode mode = EditMode::CREATE;
+    unsigned int mode = EditMode::CREATE;
 };

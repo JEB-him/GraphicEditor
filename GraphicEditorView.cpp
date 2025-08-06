@@ -169,7 +169,7 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     // 创建图形
     // Debug statement
-    m_opMode = OperationMode::OP_CREATE_RECTANGLE;
+    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT;
     // End Debug
     if (m_opMode & OperationMode::OP_CREATE) {
         CreateShape(point.x, point.y);
@@ -187,14 +187,18 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
         m_opMode = OperationMode::OP_SELECT;
+        selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {
 
     }
 
 }
-afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
 
+afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
+    if (m_opMode & OperationMode::OP_SCALE) {
+        selected_shape->scale(this, point.x, point.y);
+    }
 }
 
 
@@ -210,6 +214,13 @@ void CGraphicEditorView::Dump(CDumpContext& dc) const
 {
 	CView::Dump(dc);
 }
+
+CGraphicEditorDoc* CGraphicEditorView::GetDocument() const // 非调试版本是内联的
+{
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CGraphicEditorDoc)));
+	return (CGraphicEditorDoc*)m_pDocument;
+}
+#endif //_DEBUG
 
 void CGraphicEditorView::CreateShape(const int& x, const int& y) {
     // 获取文档指针
@@ -231,6 +242,13 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
                 m_border_color,
                 m_border_style
             );
+            bool isSussussed = pDoc->AddShape(PRect);
+            if (!isSussussed) {
+                throw std::runtime_error("Failed to add rectangle.");
+            }
+            // Add SELECT Mode (CREATE Mode has been initialized in class)
+            pRect->addMode(EditMode::SELECT);
+            selected_shape = pRect;
             // Increase z_max
             ++CShape::z_max;
             break;
@@ -238,13 +256,5 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
             return;
     }
 }
-
-CGraphicEditorDoc* CGraphicEditorView::GetDocument() const // 非调试版本是内联的
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CGraphicEditorDoc)));
-	return (CGraphicEditorDoc*)m_pDocument;
-}
-#endif //_DEBUG
-
 
 // CGraphicEditorView 消息处理程序

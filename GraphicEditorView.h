@@ -6,10 +6,10 @@
 
 enum OperationMode : unsigned int {
     OP_NONE   = 0,         // 缺省，点击空白区域等
-    // 选择状态
-	OP_SELECT = 0b1000000, // 选择某一图形/组合
+    // Simple modes.
 	OP_SCALE  = 0b1000001, // 缩放某一图形/组合
 	OP_MOVE   = 0b1000010, // 移动某一个图形
+	OP_SELECT = 0b1000100, // 选择某一图形/组合
     // 创建图形
 	OP_CREATE           = 0b10000000,
 	OP_CREATE_RECTANGLE = 0b10000001,   // 创建一个矩形
@@ -48,13 +48,16 @@ public:
 #endif
 
 protected:
-    OperationMode m_opMode = OperationMode::OP_NONE;
+    unsigned int m_opMode = OperationMode::OP_NONE;
 
     // Drawing properties.
     Color       m_filled_color = RGB(255, 255, 255); // Default: White.
     Color       m_border_color = RGB(0, 0, 0);       // Default: Black.
     BorderWidth m_border_width = 2;
     BorderStyle m_border_style = PS_SOLID;
+
+    // Opration object
+    CShape* selected_shape;
 
 // 内部函数
 protected:
