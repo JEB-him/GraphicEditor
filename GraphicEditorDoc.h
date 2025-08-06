@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <afxcoll.h>
+#include "Shapes/Shape.h"
+
 
 class CGraphicEditorDoc : public CDocument
 {
@@ -17,14 +20,25 @@ public:
 
 // 操作
 public:
+	bool AddShape(CShape* pShape);        // 添加图形
+    int GetIndex(const CShape* pShape) const;  // Get index by the value of the
+                                          // CShape pointer.
+    CShape* GetShapeAt(int index) const;  // Get shape pointer by index
+    bool RemoveShapeAt(int index);        // Remove shape by index
+	bool RemoveAllShapes();               // 移除所有图形
+	bool SortShapes();                    // 按照 z 坐标排序
+	const CObArray& GetShapes() const;    // 获取图形列表
+
+protected:
+    static bool CmpByz(const void* elem1, const void* elem2);
 
 // 重写
 public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
+	virtual BOOL OnNewDocument() override;
+	virtual void Serialize(CArchive& ar) override;
 #ifdef SHARED_HANDLERS
-	virtual void InitializeSearchContent();
-	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
+	virtual void InitializeSearchContent() override;
+	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds) override;
 #endif // SHARED_HANDLERS
 
 // 实现
@@ -36,6 +50,8 @@ public:
 #endif
 
 protected:
+    // Store all shapes.
+    CObArray m_shapes;
 
 // 生成的消息映射函数
 protected:
