@@ -2,7 +2,6 @@
 #include "Rectangle.h"
 
 CRectangle::CRectangle(
-    CView* pView,
     const float& z,
     const int& x,
     const int& y,
@@ -11,7 +10,6 @@ CRectangle::CRectangle(
     const Color& border_color,
     const BorderStyle border_style) :
     CShape(
-        pView,
         z, x, y,
         filled_color,
         border_width,
@@ -22,8 +20,8 @@ CRectangle::CRectangle(
     height(LENGTH){
 }
 
-CCommand CRectangle::scale(const int& mouse_x, const int& mouse_y) {
-    CCommand cmd = CShape::scale(mouse_x, mouse_y);
+CCommand CRectangle::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
+    CCommand cmd = CShape::scale(pView, mouse_x, mouse_y);
     // TODO: Validate the cmd.
     width  = new_bwidth;
     height = new_bheight;

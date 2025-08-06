@@ -138,6 +138,10 @@ BOOL CGraphicEditorApp::InitInstance()
 	// 唯一的一个窗口已初始化，因此显示它并对其进行更新
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
+
+    // 初始化 GDI+
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 	return TRUE;
 }
 
@@ -145,6 +149,8 @@ int CGraphicEditorApp::ExitInstance()
 {
 	//TODO: 处理可能已添加的附加资源
 	AfxOleTerm(FALSE);
+    // 关闭 GDI+
+	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 
 	return CWinAppEx::ExitInstance();
 }

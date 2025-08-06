@@ -13,6 +13,8 @@
 #include "GraphicEditorDoc.h"
 
 #include <propkey.h>
+#include <algorithm>
+#include <vector>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -36,6 +38,112 @@ CGraphicEditorDoc::CGraphicEditorDoc() noexcept
 
 CGraphicEditorDoc::~CGraphicEditorDoc()
 {
+    const int count = m_shapes.GetCount();
+    for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
+    {
+        if (m_shapes[i] != nullptr)
+        {
+            delete m_shapes[i];
+            m_shapes.SetAt(i, nullptr);  // 设置为nullptr
+        }
+    }
+    m_shapes.RemoveAll();
+}
+
+
+bool CGraphicEditorDoc::AddShape(CShape* pShape) {
+    if (pShape == nullptr) {
+        return false;
+    }
+    m_shapes.Add(pShape);
+    SetModifiedFlag(TRUE);  // 标记文档已修改
+    // We use Invalidate() in every View.
+    // UpdateAllViews(NULL);   // 更新所有视图
+    return true;
+}
+
+int CGraphicEditorDoc::GetIndex(const CShape* pShape) const
+{
+    if (pShape == nullptr)
+        return -1;
+
+    // 遍历数组查找匹配指针
+    for (int i = 0; i < m_shapes.GetCount(); i++)
+    {
+        if (m_shapes[i] == pShape)  // 直接比较指针地址
+        {
+            return i;
+        }
+    }
+
+    return -1;  // 未找到
+}
+
+CShape* CGraphicEditorDoc::GetShapeAt(int index) const
+{
+    if (index >= 0 && index < m_shapes.GetCount())
+    {
+        return dynamic_cast<CShape*>(m_shapes[index]);
+    }
+    return nullptr;
+}
+
+bool CGraphicEditorDoc::RemoveShapeAt(int index)
+{
+    if (index >= 0 && index < m_shapes.GetCount())
+    {
+        delete m_shapes[index];  // 释放内存
+        m_shapes.RemoveAt(index);
+        SetModifiedFlag(TRUE);
+        return TRUE;
+    }
+    return FALSE;
+}                                       // Remove shape by index
+
+bool CGraphicEditorDoc::RemoveAllShapes() {
+    for (int i = 0; i < m_shapes.GetCount(); i++) {
+        delete m_shapes[i];
+    }
+    m_shapes.RemoveAll();
+    SetModifiedFlag(TRUE);
+    // Unnecessary Updation
+    // UpdateAllViews(NULL);
+    return true;
+}
+bool CGraphicEditorDoc::SortShapes() {
+    int nCount = m_shapes.GetCount();
+    if (nCount < 2) return true;
+
+    // 复制到临时vector
+    std::vector<CShape*> temp(nCount);
+    for (int i = 0; i < nCount; ++i) {
+        temp[i] = dynamic_cast<CShape*>(m_shapes[i]);
+    }
+
+    // 排序
+    std::sort(temp.begin(), temp.end(), CmpByz);
+
+    // 复制回CObArray
+    m_shapes.RemoveAll();
+    for (auto pShape : temp) {
+        m_shapes.Add(pShape);
+    }
+
+    // Unnecessary Updation
+    // UpdateAllViews(NULL);
+    return true;
+}
+
+bool CGraphicEditorDoc::CmpByz(const void* elem1, const void* elem2) {
+    // 转换指针类型
+    CShape* pShape1 = *(CShape**)elem1;
+    CShape* pShape2 = *(CShape**)elem2;
+
+    return pShape1->getZ() <= pShape1->getZ();
+}
+
+const CObArray& CGraphicEditorDoc::GetShapes() const {
+    return m_shapes;
 }
 
 BOOL CGraphicEditorDoc::OnNewDocument()
@@ -56,14 +164,32 @@ BOOL CGraphicEditorDoc::OnNewDocument()
 
 void CGraphicEditorDoc::Serialize(CArchive& ar)
 {
-	if (ar.IsStoring())
-	{
-		// TODO: 在此添加存储代码
-	}
-	else
-	{
-		// TODO: 在此添加加载代码
-	}
+    // 首先调用基类序列化
+    CDocument::Serialize(ar);
+
+    if (ar.IsStoring()) {
+        // 存储数据时的逻辑
+
+        // 可以添加其他需要存储的数据
+        // ar << m_someOtherData;
+
+        // CObArray会自动序列化其内容
+        m_shapes.Serialize(ar);
+    } else {
+        // 加载数据时的逻辑
+
+        // 先清空现有数据
+        RemoveAllShapes();
+
+        // CObArray会自动反序列化其内容
+        m_shapes.Serialize(ar);
+
+        // 可以添加其他需要加载的数据
+        // ar >> m_someOtherData;
+
+        // 更新视图
+        UpdateAllViews(nullptr);
+    }
 }
 
 #ifdef SHARED_HANDLERS

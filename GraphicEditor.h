@@ -18,7 +18,7 @@ class CGraphicEditorApp : public CWinAppEx
 {
 public:
 	CGraphicEditorApp() noexcept;
-	// ULONG_PTR m_gdiplusToken;
+	ULONG_PTR m_gdiplusToken;
 
 // 重写
 public:

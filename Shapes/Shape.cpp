@@ -9,7 +9,6 @@ const int CShape::LENGTH = 1;
 float CShape::z_max = 0;
 
 CShape::CShape(
-    CView* pView,
     const float& z,
     const int& x,
     const int& y,
@@ -17,7 +16,6 @@ CShape::CShape(
     const BorderWidth& border_width,
     const Color& border_color,
     const BorderStyle border_style) :
-    pView(pView),
     z(z),
     new_x(x),
     new_y(y),
@@ -30,13 +28,56 @@ CShape::CShape(
 }
 
 CShape::CShape(
-    CView* pView) :
-    pView(pView) {
+    ) {
 }
 
 bool CShape::setMode(EditMode mode) {
     this->mode = mode;
     return true;
+}
+
+const float& CShape::getZ() const
+{
+    return this->z;
+}
+
+// 序列化方法
+void CShape::Serialize(CArchive& ar) {
+    CObject::Serialize(ar);
+    if (ar.IsStoring()) {
+        // 存储数据
+        ar << LENGTH;
+        ar << z;
+        ar << old_x;
+        ar << old_y;
+        ar << old_bwidth;
+        ar << old_bheight;
+        ar << new_x;
+        ar << new_y;
+        ar << new_bwidth;
+        ar << new_bheight;
+        ar << filled_color;
+        ar << border_style;
+        ar << border_width;
+        ar << border_color;
+        ar << mode;
+    } else {
+        // 加载数据
+        ar >> z;
+        ar >> old_x;
+        ar >> old_y;
+        ar >> old_bwidth;
+        ar >> old_bheight;
+        ar >> new_x;
+        ar >> new_y;
+        ar >> new_bwidth;
+        ar >> new_bheight;
+        ar >> filled_color;
+        ar >> border_style;
+        ar >> border_width;
+        ar >> border_color;
+        mode = EditMode::NONE;
+    }
 }
 
 bool CShape::update() {
@@ -56,7 +97,7 @@ bool CShape::resize() {
  * @param y
  * @return
  */
-CCommand CShape::move(const int& x, const int& y) {
+CCommand CShape::move(CView* pView, const int& x, const int& y) {
     CRect clientRect;
     pView->GetClientRect(&clientRect);
 
@@ -79,7 +120,7 @@ CCommand CShape::move(const int& x, const int& y) {
     return {};
 }
 
-CCommand CShape::scale(const int& mouse_x, const int& mouse_y) {
+CCommand CShape::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
     CRect clientRect;
     pView->GetClientRect(&clientRect);
 

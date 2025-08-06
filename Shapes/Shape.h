@@ -13,6 +13,7 @@ constexpr Color BRUSH_TRANSPARENT = RGB(255, 255, 255);
 enum EditMode : unsigned int {
     // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
+    NONE    = 0b00000,
     SELECT  = 0b00001,
     SCALE   = 0b00010,
     ROTATE  = 0b00100,
@@ -25,9 +26,8 @@ public:
     // the max z pos
     static float z_max;
 
-    CShape() = default;
+    //CShape() = default;
     CShape(
-        CView* PView,
         const float& z,
         const int& x,
         const int& y,
@@ -39,12 +39,18 @@ public:
 
     // The combination needn't set layer.
     CShape(
-        CView* PView
     );
+
+    // TODO copy constructor
 
     bool setMode(EditMode mode);
 
+    const float& getZ() const;
+
     virtual ~CShape() = default;
+
+    // 序列化方法
+    virtual void Serialize(CArchive& ar) override;
 
     
     // Virtual functions.
@@ -55,12 +61,12 @@ public:
      * @brief move the shape or the combination
      * @note  The combination needs a unique implemention.
      */
-    virtual CCommand move(const int& x, const int& y);
+    virtual CCommand move(CView* pView, const int& x, const int& y);
     /**
      * @brief scale the shape or the combination
      * @note  Every children class needs a unique implemention.
      */
-    virtual CCommand scale(const int& mouse_x, const int& mouse_y);
+    virtual CCommand scale(CView* pView, const int& mouse_x, const int& mouse_y);
     /**
      * @brief Modify the filled color of the graphic.
      * @note  The line need a unique implemention.
@@ -82,10 +88,11 @@ public:
     virtual CCommand rotate(float angle) = 0;
 
 protected:
+    // TODO: 当增删成员变量的时候修改对应序列化代码
+
     // The initial width and height of a shape
     const static int LENGTH;
     // A pointer point to view.
-    CView*  pView;
 
     // z pos
     // The range is [0, 100)

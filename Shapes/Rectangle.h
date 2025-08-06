@@ -7,7 +7,6 @@ class CRectangle : public CShape {
 public:
     CRectangle() = default;
     CRectangle(
-        CView* pView,
         const float& z,
         const int& x,
         const int& y,
@@ -19,7 +18,7 @@ public:
 
     ~CRectangle() = default;
 
-    CCommand scale(const int& mouse_x, const int& mouse_y) override;
+    CCommand scale(CView* pView, const int& mouse_x, const int& mouse_y) override;
     CCommand rotate(float angle) override;
     bool draw(Gdiplus::Graphics& graphics) override;
 
