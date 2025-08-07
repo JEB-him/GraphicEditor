@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <iostream>
 
-const int CShape::LENGTH = 20;
+const int CShape::LENGTH = 1;
 float CShape::z_max = 0;
 
 CShape::CShape(

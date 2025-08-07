@@ -5,16 +5,16 @@
 #pragma once
 
 enum OperationMode : unsigned int {
-    OP_NONE   = 0,         // 缺省，点击空白区域等
+    OP_NONE             = 0b00000000,   // 缺省，点击空白区域等
     // Simple modes.
-	OP_SCALE  = 0b1000001, // 缩放某一图形/组合
-	OP_MOVE   = 0b1000010, // 移动某一个图形
-	OP_SELECT = 0b1000100, // 选择某一图形/组合
+	OP_SCALE            = 0b00000001,   // 缩放某一图形/组合
+	OP_MOVE             = 0b00000010,   // 移动某一个图形
+	OP_SELECT           = 0b00000100,   // 选择某一图形/组合
     // 创建图形
-	OP_CREATE           = 0b10000000,
-	OP_CREATE_RECTANGLE = 0b10000001,   // 创建一个矩形
-	OP_CREATE_ELLIPSE   = 0b10000010,   // 创建一个椭圆
-	OP_CREATE_TRIANGLE  = 0b10000100    // 创建一个三角形
+	OP_CREATE           = 0b01000000,
+	OP_CREATE_RECTANGLE = 0b00001000,   // 创建一个矩形
+	OP_CREATE_ELLIPSE   = 0b00010000,   // 创建一个椭圆
+	OP_CREATE_TRIANGLE  = 0b00100000    // 创建一个三角形
 };
 
 class CGraphicEditorView : public CView
@@ -71,6 +71,8 @@ protected:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 	DECLARE_MESSAGE_MAP()
 };
 
