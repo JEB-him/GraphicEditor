@@ -192,6 +192,7 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
         else {
             m_opMode ^= OperationMode::OP_SCALE;
         }
+        m_opMode = OperationMode::OP_SELECT;
         selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {
@@ -234,7 +235,6 @@ void CGraphicEditorView::OnSize(UINT nType, int cx, int cy)
     CView::OnSize(nType, cx, cy);
     Invalidate();  // 触发重绘
 }
-
 
 // CGraphicEditorView 诊断
 
