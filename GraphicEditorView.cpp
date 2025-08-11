@@ -40,6 +40,14 @@ BEGIN_MESSAGE_MAP(CGraphicEditorView, CView)
 	ON_WM_RBUTTONUP()    // 映射右键释放消息
     ON_WM_ERASEBKGND()   // 添加背景擦除处理
     ON_WM_SIZE()         // 添加窗口大小改变处理
+    ON_COMMAND(ID_32771, &CGraphicEditorView::Line)
+    ON_COMMAND(ID_32772, &CGraphicEditorView::Triangle)
+    ON_COMMAND(ID_32773, &CGraphicEditorView::Rectangle)
+    ON_COMMAND(ID_32774, &CGraphicEditorView::Ellipse)
+    ON_COMMAND(ID_32775, &CGraphicEditorView::LineColor)
+    ON_COMMAND(ID_32776, &CGraphicEditorView::FilledColor)
+    ON_COMMAND(ID_32777, &CGraphicEditorView::LineType1)
+    ON_COMMAND(ID_32778, &CGraphicEditorView::LineType2)
 END_MESSAGE_MAP()
 
 // CGraphicEditorView 构造/析构
@@ -161,17 +169,16 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     // 创建图形
-    // Debug statement
-    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
-    // End Debug
     if (m_opMode & OperationMode::OP_CREATE) {
         CreateShape(point.x, point.y);
         // Switch to SCALE mode afetr shape creation.
-        m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
+        m_opMode |= OperationMode::OP_SCALE;
         Invalidate();
         return;
     } else if (m_opMode & OperationMode::OP_SELECT) {
         // TODO: Check if click the empty area.
+    } else if (m_opMode == 0) {
+        // TODO: Check if click any combination or shape.
     } else {
       throw std::runtime_error("Unknown Operation Mode.");
     }
@@ -179,7 +186,12 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
 afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
-        m_opMode = OperationMode::OP_SELECT;
+        if (!(m_opMode & OperationMode::OP_CREATE)) {
+            m_opMode = OperationMode::OP_SELECT;
+        }
+        else {
+            m_opMode ^= OperationMode::OP_SCALE;
+        }
         selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {
@@ -277,3 +289,53 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
 }
 
 // CGraphicEditorView 消息处理程序
+
+void CGraphicEditorView::Line()
+{
+    m_opMode = OperationMode::OP_CREATE_LINE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Triangle()
+{
+    m_opMode = OperationMode::OP_CREATE_TRIANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Rectangle()
+{
+    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Ellipse()
+{
+    m_opMode = OperationMode::OP_CREATE_ELLIPSE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::LineColor()
+{
+    CColorDialog dlg(m_border_color); // 默认选中当前颜色
+    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
+    {
+        m_border_color = dlg.GetColor(); // 更新颜色
+        Invalidate(); // 重绘视图
+    }
+}
+
+void CGraphicEditorView::FilledColor()
+{
+    CColorDialog dlg(m_filled_color); // 默认选中当前颜色
+    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
+    {
+        m_filled_color = dlg.GetColor(); // 更新颜色
+        Invalidate(); // 重绘视图
+    }
+}
+
+void CGraphicEditorView::LineType1()
+{
+    m_border_style = PS_SOLID;
+}
+
+void CGraphicEditorView::LineType2()
+{
+    m_border_style = PS_DASH;
+}
