@@ -38,6 +38,16 @@ BEGIN_MESSAGE_MAP(CGraphicEditorView, CView)
     ON_WM_MOUSEMOVE()    // 映射鼠标移动消息
 	ON_WM_LBUTTONUP()    // 映射左键释放消息
 	ON_WM_RBUTTONUP()    // 映射右键释放消息
+    ON_WM_ERASEBKGND()   // 添加背景擦除处理
+    ON_WM_SIZE()         // 添加窗口大小改变处理
+    ON_COMMAND(ID_32771, &CGraphicEditorView::Line)
+    ON_COMMAND(ID_32772, &CGraphicEditorView::Triangle)
+    ON_COMMAND(ID_32773, &CGraphicEditorView::Rectangle)
+    ON_COMMAND(ID_32774, &CGraphicEditorView::Ellipse)
+    ON_COMMAND(ID_32775, &CGraphicEditorView::LineColor)
+    ON_COMMAND(ID_32776, &CGraphicEditorView::FilledColor)
+    ON_COMMAND(ID_32777, &CGraphicEditorView::LineType1)
+    ON_COMMAND(ID_32778, &CGraphicEditorView::LineType2)
 END_MESSAGE_MAP()
 
 // CGraphicEditorView 构造/析构
@@ -66,69 +76,60 @@ BOOL CGraphicEditorView::PreCreateWindow(CREATESTRUCT& cs)
 void CGraphicEditorView::OnDraw(CDC* pDC)
 {
     CGraphicEditorDoc* pDoc = GetDocument();
-    CRect   rect;
-    // Get the size of view.
+    CRect rect;
     GetClientRect(&rect);
 
-    // Screen size
-    int width  = rect.Width();
-    int height = rect.Height();
+    // 当窗口最小化时跳过绘制
+    if (rect.IsRectEmpty())
+        return;
 
-    // 使用 GDI+ 双缓冲
-    Gdiplus::Graphics graphics(pDC->GetSafeHdc());
+    // 双缓冲绘图
+    CDC memDC;
+    CBitmap memBitmap;
+    memDC.CreateCompatibleDC(pDC);
+    memBitmap.CreateCompatibleBitmap(pDC, rect.Width(), rect.Height());
+    CBitmap* pOldBitmap = memDC.SelectObject(&memBitmap);
 
-    // 创建内存位图（32位带alpha通道）
-    Gdiplus::Bitmap bufferBmp(width, height, PixelFormat32bppARGB);
-    Gdiplus::Graphics bufferGraphics(&bufferBmp);
+    try {
+        // 使用GDI+双缓冲
+        Gdiplus::Graphics graphics(memDC.GetSafeHdc());
+        Gdiplus::Bitmap bufferBmp(rect.Width(), rect.Height(), PixelFormat32bppARGB);
+        Gdiplus::Graphics bufferGraphics(&bufferBmp);
 
-    // 设置高质量渲染
-    bufferGraphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-    bufferGraphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+        // 高质量渲染设置
+        bufferGraphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+        bufferGraphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
 
-    // 绘制白色背景
-    bufferGraphics.Clear(Gdiplus::Color(255, 255, 255));
+        // 绘制白色背景
+        bufferGraphics.Clear(Gdiplus::Color(255, 255, 255));
 
-    /*========= Test ========*/
-    CRectangle rect1 {1, 0, 0, RGB(255, 0, 0), 2, RGB(0, 255, 0), PS_SOLID};
-    CRectangle rect2 {1, 10, 20, RGB(0, 255, 0), 2, RGB(0, 0, 255), PS_SOLID};
-    rect1.setMode(EditMode::CREATE);
-    rect1.scale(this, 50, 60);
-    rect2.setMode(EditMode::CREATE);
-    rect2.scale(this, 70, 40);
-
-    // Drawing
-    rect1.draw(bufferGraphics);
-    rect2.draw(bufferGraphics);
-
-    // 将双缓冲内容绘制到屏幕
-    graphics.DrawImage(&bufferBmp, 0, 0);
-    return;
-
-    /*======= Test End ======*/
-    ASSERT_VALID(pDoc);
-    if (!pDoc)
-      return;
-
-    // 绘制所有形状
-    float last_z = -1;
-    const CObArray& shapes = pDoc->GetShapes();
-    for (int i = 0; i < shapes.GetCount(); i++) {
-        CShape* pShape = static_cast<CShape*>(shapes[i]);
-        if (pShape) {
-            if (last_z ==  pShape->getZ()) {
-                throw std::runtime_error("Same z-index found!");
+        // 绘制文档内容
+        ASSERT_VALID(pDoc);
+        if (pDoc) {
+            const CObArray& shapes = pDoc->GetShapes();
+            for (int i = 0; i < shapes.GetCount(); i++) {
+                if (CShape* pShape = dynamic_cast<CShape*>(shapes[i])) {
+                    pShape->draw(bufferGraphics);
+                }
             }
-            pShape->draw(bufferGraphics);
-            last_z = pShape->getZ();
-        } else {
-            throw std::runtime_error("Null value Cshape pointer found!");
         }
+
+        // 绘制到内存DC
+        graphics.DrawImage(&bufferBmp, 0, 0);
     }
+    catch (...) {
+        // 异常处理
+    }
+
+    // 将最终图像绘制到屏幕
+    pDC->BitBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, SRCCOPY);
+
+    // 清理资源
+    memDC.SelectObject(pOldBitmap);
 }
 
 
 // CGraphicEditorView 打印
-
 
 void CGraphicEditorView::OnFilePrintPreview()
 {
@@ -168,17 +169,16 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     // 创建图形
-    // Debug statement
-    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT;
-    // End Debug
     if (m_opMode & OperationMode::OP_CREATE) {
         CreateShape(point.x, point.y);
         // Switch to SCALE mode afetr shape creation.
-        m_opMode = OperationMode::OP_SCALE;
+        m_opMode |= OperationMode::OP_SCALE;
         Invalidate();
         return;
     } else if (m_opMode & OperationMode::OP_SELECT) {
         // TODO: Check if click the empty area.
+    } else if (m_opMode == 0) {
+        // TODO: Check if click any combination or shape.
     } else {
       throw std::runtime_error("Unknown Operation Mode.");
     }
@@ -186,6 +186,12 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
 afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
+        if (!(m_opMode & OperationMode::OP_CREATE)) {
+            m_opMode = OperationMode::OP_SELECT;
+        }
+        else {
+            m_opMode ^= OperationMode::OP_SCALE;
+        }
         m_opMode = OperationMode::OP_SELECT;
         selected_shape->setMode(EditMode::SELECT);
         Invalidate();
@@ -197,10 +203,38 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
 
 afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SCALE) {
+        //// 获取原始边界矩形
+        //CRect oldRect = selected_shape->getBoundingRect();
+
+        //// 更新形状
+        //selected_shape->scale(this, point.x, point.y);
+
+        //// 获取新边界矩形
+        //CRect newRect = selected_shape->getBoundingRect();
+
+        //// 计算需要重绘的区域
+        //CRect updateRect;
+        //updateRect.UnionRect(&oldRect, &newRect);  // 合并新旧区域
+
+        //// 添加边界余量（避免抗锯齿导致的残留）
+        //updateRect.InflateRect(5, 5);
+        //// 只重绘受影响区域
         selected_shape->scale(this, point.x, point.y);
+        Invalidate();
+        //InvalidateRect(updateRect);  // 关键调用
     }
 }
 
+BOOL CGraphicEditorView::OnEraseBkgnd(CDC* pDC)
+{
+    return TRUE;  // 禁用默认背景擦除
+}
+
+void CGraphicEditorView::OnSize(UINT nType, int cx, int cy)
+{
+    CView::OnSize(nType, cx, cy);
+    Invalidate();  // 触发重绘
+}
 
 // CGraphicEditorView 诊断
 
@@ -231,30 +265,77 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
         return;
     }
 
-    switch (m_opMode) {
-        case OperationMode::OP_CREATE_RECTANGLE: {
-            CRectangle* pRect = new CRectangle(
-                CShape::z_max,
-                x,
-                y,
-                m_filled_color,
-                m_border_width,
-                m_border_color,
-                m_border_style
-            );
-            bool isSussussed = pDoc->AddShape(PRect);
-            if (!isSussussed) {
-                throw std::runtime_error("Failed to add rectangle.");
-            }
-            // Add SELECT Mode (CREATE Mode has been initialized in class)
-            pRect->addMode(EditMode::SELECT);
-            selected_shape = pRect;
-            // Increase z_max
-            ++CShape::z_max;
-            break;
-        } default:
-            return;
+    if (m_opMode & OperationMode::OP_CREATE_RECTANGLE) {
+        CRectangle* pRect = new CRectangle(
+            CShape::z_max,
+            x,
+            y,
+            m_filled_color,
+            m_border_width,
+            m_border_color,
+            m_border_style
+        );
+        bool isSussussed = pDoc->AddShape(pRect);
+        if (!isSussussed) {
+            delete pRect; // 添加失败时释放内存
+            throw std::runtime_error("Failed to add rectangle.");
+        }
+        // Add SELECT Mode (CREATE Mode has been initialized in class)
+        pRect->addMode(EditMode::SELECT);
+        selected_shape = pRect;
+        // Increase z_max
+        ++CShape::z_max;
     }
 }
 
 // CGraphicEditorView 消息处理程序
+
+void CGraphicEditorView::Line()
+{
+    m_opMode = OperationMode::OP_CREATE_LINE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Triangle()
+{
+    m_opMode = OperationMode::OP_CREATE_TRIANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Rectangle()
+{
+    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Ellipse()
+{
+    m_opMode = OperationMode::OP_CREATE_ELLIPSE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::LineColor()
+{
+    CColorDialog dlg(m_border_color); // 默认选中当前颜色
+    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
+    {
+        m_border_color = dlg.GetColor(); // 更新颜色
+        Invalidate(); // 重绘视图
+    }
+}
+
+void CGraphicEditorView::FilledColor()
+{
+    CColorDialog dlg(m_filled_color); // 默认选中当前颜色
+    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
+    {
+        m_filled_color = dlg.GetColor(); // 更新颜色
+        Invalidate(); // 重绘视图
+    }
+}
+
+void CGraphicEditorView::LineType1()
+{
+    m_border_style = PS_SOLID;
+}
+
+void CGraphicEditorView::LineType2()
+{
+    m_border_style = PS_DASH;
+}
