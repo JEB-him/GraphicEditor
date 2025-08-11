@@ -1,3 +1,4 @@
+// Shape.cpp
 #include "pch.h"
 #include "Shape.h"
 
@@ -5,7 +6,10 @@
 #include <stdexcept>
 #include <iostream>
 
-const int CShape::LENGTH = 1;
+const int   CShape::LENGTH                = 1;
+const int   CShape::DIFF                  = 2;
+const Color CShape::selected_border_color = RGB(179,179,179);
+const int   CShape::selected_border_width = 2;
 float CShape::z_max = 0;
 
 CShape::CShape(
@@ -193,4 +197,25 @@ CCommand CShape::modifyBorder(const Color& border_color, const int& border_width
     this->border_width = border_width;
 
     return {};
+}
+
+bool CShape::drawSelectedBorder(Gdiplus::Graphics& graphics) {
+    if (!(mode & EditMode::SELECT)) {
+        return true;
+    }
+    // 创建画笔和画刷
+    Gdiplus::Pen pen(Gdiplus::Color(255, 
+                     GetRValue(selected_border_color), 
+                     GetGValue(selected_border_color), 
+                     GetBValue(selected_border_color)), 
+                     static_cast<Gdiplus::REAL>(selected_border_width));
+    pen.SetDashStyle(Gdiplus::DashStyleDash);
+
+    // 绘制边框
+    graphics.DrawRectangle(&pen, 
+                           static_cast<INT>(new_x), 
+                           static_cast<INT>(new_y), 
+                           static_cast<INT>(new_width), 
+                           static_cast<INT>(new_height));
+    return true;
 }

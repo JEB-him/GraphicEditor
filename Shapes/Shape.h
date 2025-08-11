@@ -88,10 +88,14 @@ public:
     virtual CCommand rotate(float angle) = 0;
 
 protected:
+    bool drawSelectedBorder(Gdiplus::Graphics& graphics);
     // TODO: 当增删成员变量的时候修改对应序列化代码
 
     // The initial width and height of a shape
     const static int LENGTH;
+    const static int DIFF;
+    const static Color selected_border_color;
+    const static int selected_border_width;
     // A pointer point to view.
 
     // z pos
