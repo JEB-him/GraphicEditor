@@ -35,6 +35,26 @@ bool CRectangle::draw(Gdiplus::Graphics& graphics) {
                      GetGValue(border_color), 
                      GetBValue(border_color)), 
                      static_cast<Gdiplus::REAL>(border_width));
+    // 设置线条类型
+    switch (border_style) {
+    case PS_SOLID:
+        pen.SetDashStyle(Gdiplus::DashStyleSolid);
+        break;
+    case PS_DASH:
+        pen.SetDashStyle(Gdiplus::DashStyleDash);
+        break;
+    case PS_DOT:
+        pen.SetDashStyle(Gdiplus::DashStyleDot);
+        break;
+    case PS_DASHDOT:
+        pen.SetDashStyle(Gdiplus::DashStyleDashDot);
+        break;
+    case PS_DASHDOTDOT:
+        pen.SetDashStyle(Gdiplus::DashStyleDashDotDot);
+        break;
+    default:
+        pen.SetDashStyle(Gdiplus::DashStyleSolid);
+    }
 
     Gdiplus::SolidBrush brush(Gdiplus::Color(255, 
                      GetRValue(filled_color), 
