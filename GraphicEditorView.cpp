@@ -169,17 +169,16 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     // 创建图形
-    // Debug statement
-    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
-    // End Debug
     if (m_opMode & OperationMode::OP_CREATE) {
         CreateShape(point.x, point.y);
         // Switch to SCALE mode afetr shape creation.
-        m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
+        m_opMode |= OperationMode::OP_SCALE;
         Invalidate();
         return;
     } else if (m_opMode & OperationMode::OP_SELECT) {
         // TODO: Check if click the empty area.
+    } else if (m_opMode == 0) {
+        // TODO: Check if click any combination or shape.
     } else {
       throw std::runtime_error("Unknown Operation Mode.");
     }
@@ -187,7 +186,12 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
 afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
-        m_opMode = OperationMode::OP_SELECT;
+        if (m_opMode & OperationMode::OP_CREATE) {
+            m_opMode ^= OperationMode::OP_SCALE;
+        }
+        else {
+            m_opMode = OperationMode::OP_SELECT;
+        }
         selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {

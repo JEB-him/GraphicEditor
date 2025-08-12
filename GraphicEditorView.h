@@ -11,10 +11,11 @@ enum OperationMode : unsigned int {
 	OP_MOVE             = 0b00000010,   // 移动某一个图形
 	OP_SELECT           = 0b00000100,   // 选择某一图形/组合
     // 创建图形
-	OP_CREATE           = 0b01000000,
+	OP_CREATE           = 0b10000000,   // 创建图形
 	OP_CREATE_RECTANGLE = 0b00001000,   // 创建一个矩形
 	OP_CREATE_ELLIPSE   = 0b00010000,   // 创建一个椭圆
-	OP_CREATE_TRIANGLE  = 0b00100000    // 创建一个三角形
+	OP_CREATE_TRIANGLE  = 0b00100000,   // 创建一个三角形
+	OP_CREATE_LINE      = 0b01000000    // 创建一条直线
 };
 
 class CGraphicEditorView : public CView
