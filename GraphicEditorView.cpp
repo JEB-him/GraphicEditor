@@ -186,13 +186,12 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
 afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
-        if (!(m_opMode & OperationMode::OP_CREATE)) {
-            m_opMode = OperationMode::OP_SELECT;
-        }
-        else {
+        if (m_opMode & OperationMode::OP_CREATE) {
             m_opMode ^= OperationMode::OP_SCALE;
         }
-        m_opMode = OperationMode::OP_SELECT;
+        else {
+            m_opMode = OperationMode::OP_SELECT;
+        }
         selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {
@@ -289,53 +288,55 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
 }
 
 // CGraphicEditorView 消息处理程序
-
-void CGraphicEditorView::Line()
+void CGraphicEditorView::Set_Linecolor()
 {
-    m_opMode = OperationMode::OP_CREATE_LINE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+    CColorDialog colorDlg(m_border_color);         // 构造颜色对话框，传入初始颜色值   
+
+    if (IDOK == colorDlg.DoModal())       // 显示颜色对话框，并判断是否点击了“确定”   
+    {
+        m_border_color = colorDlg.GetColor();      // 获取颜色对话框中选择的颜色值   
+    }
+    Invalidate(); // 重绘视图
 }
 
-void CGraphicEditorView::Triangle()
+void CGraphicEditorView::Set_FIlledcolor()
+{
+    CColorDialog colorDlg(m_filled_color);         // 构造颜色对话框，传入初始颜色值   
+
+    if (IDOK == colorDlg.DoModal())       // 显示颜色对话框，并判断是否点击了“确定”   
+    {
+        m_filled_color = colorDlg.GetColor();      // 获取颜色对话框中选择的颜色值   
+    }
+    Invalidate(); // 重绘视图
+}
+
+void CGraphicEditorView::LineMode()
+{
+    m_opMode = OP_CREATE;
+}
+
+void CGraphicEditorView::TriangleMode()
 {
     m_opMode = OperationMode::OP_CREATE_TRIANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
 }
 
-void CGraphicEditorView::Rectangle()
+void CGraphicEditorView::RectangleMode()
 {
     m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
 }
 
-void CGraphicEditorView::Ellipse()
+void CGraphicEditorView::EllipseMode()
 {
     m_opMode = OperationMode::OP_CREATE_ELLIPSE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
 }
 
-void CGraphicEditorView::LineColor()
-{
-    CColorDialog dlg(m_border_color); // 默认选中当前颜色
-    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
-    {
-        m_border_color = dlg.GetColor(); // 更新颜色
-        Invalidate(); // 重绘视图
-    }
-}
+void CGraphicEditorView::Set_LineCategory1()
 
-void CGraphicEditorView::FilledColor()
-{
-    CColorDialog dlg(m_filled_color); // 默认选中当前颜色
-    if (dlg.DoModal() == IDOK)    // 用户点击"确定"
-    {
-        m_filled_color = dlg.GetColor(); // 更新颜色
-        Invalidate(); // 重绘视图
-    }
-}
-
-void CGraphicEditorView::LineType1()
 {
     m_border_style = PS_SOLID;
 }
 
-void CGraphicEditorView::LineType2()
+void CGraphicEditorView::Set_LineCategory2()
 {
     m_border_style = PS_DASH;
 }

@@ -55,6 +55,7 @@ bool CRectangle::draw(Gdiplus::Graphics& graphics) {
     default:
         pen.SetDashStyle(Gdiplus::DashStyleSolid);
     }
+
     Gdiplus::SolidBrush brush(Gdiplus::Color(255, 
                      GetRValue(filled_color), 
                      GetGValue(filled_color), 

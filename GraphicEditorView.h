@@ -11,7 +11,8 @@ enum OperationMode : unsigned int {
 	OP_MOVE             = 0b00000010,   // 移动某一个图形
 	OP_SELECT           = 0b00000100,   // 选择某一图形/组合
     // 创建图形
-	OP_CREATE           = 0b10000000,
+	OP_CREATE           = 0b10000000,   // 创建图形
+
 	OP_CREATE_RECTANGLE = 0b00001000,   // 创建一个矩形
 	OP_CREATE_ELLIPSE   = 0b00010000,   // 创建一个椭圆
 	OP_CREATE_TRIANGLE  = 0b00100000,   // 创建一个三角形
@@ -76,14 +77,14 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void Line();
-	afx_msg void Triangle();
-	afx_msg void Rectangle();
-	afx_msg void Ellipse();
-	afx_msg void LineColor();
-	afx_msg void FilledColor();
-	afx_msg void LineType1();
-	afx_msg void LineType2();
+	afx_msg void Set_Linecolor();
+	afx_msg void Set_FIlledcolor();
+	afx_msg void LineMode();
+	afx_msg void TriangleMode();
+	afx_msg void RectangleMode();
+	afx_msg void EllipseMode();
+	afx_msg void Set_LineCategory1();
+	afx_msg void Set_LineCategory2();
 };
 
 #ifndef _DEBUG  // GraphicEditorView.cpp 中的调试版本
