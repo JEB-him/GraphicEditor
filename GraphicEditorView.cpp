@@ -40,6 +40,14 @@ BEGIN_MESSAGE_MAP(CGraphicEditorView, CView)
 	ON_WM_RBUTTONUP()    // 映射右键释放消息
     ON_WM_ERASEBKGND()   // 添加背景擦除处理
     ON_WM_SIZE()         // 添加窗口大小改变处理
+    ON_COMMAND(ID_32773, &CGraphicEditorView::Set_Linecolor)
+    ON_COMMAND(ID_32774, &CGraphicEditorView::Set_FIlledcolor)
+    ON_COMMAND(ID_32775, &CGraphicEditorView::LineMode)
+    ON_COMMAND(ID_32776, &CGraphicEditorView::TriangleMode)
+    ON_COMMAND(ID_32777, &CGraphicEditorView::RectangleMode)
+    ON_COMMAND(ID_32778, &CGraphicEditorView::EllipseMode)
+    ON_COMMAND(ID_32780, &CGraphicEditorView::Set_LineCategory1)
+    ON_COMMAND(ID_32781, &CGraphicEditorView::Set_LineCategory2)
 END_MESSAGE_MAP()
 
 // CGraphicEditorView 构造/析构
@@ -277,3 +285,55 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
 }
 
 // CGraphicEditorView 消息处理程序
+
+void CGraphicEditorView::Set_Linecolor()
+{
+    CColorDialog colorDlg(m_border_color);         // 构造颜色对话框，传入初始颜色值   
+
+    if (IDOK == colorDlg.DoModal())       // 显示颜色对话框，并判断是否点击了“确定”   
+    {
+        m_border_color = colorDlg.GetColor();      // 获取颜色对话框中选择的颜色值   
+    }
+    Invalidate(); // 重绘视图
+}
+
+void CGraphicEditorView::Set_FIlledcolor()
+{
+    CColorDialog colorDlg(m_filled_color);         // 构造颜色对话框，传入初始颜色值   
+
+    if (IDOK == colorDlg.DoModal())       // 显示颜色对话框，并判断是否点击了“确定”   
+    {
+        m_filled_color = colorDlg.GetColor();      // 获取颜色对话框中选择的颜色值   
+    }
+    Invalidate(); // 重绘视图
+}
+
+void CGraphicEditorView::LineMode()
+{
+    m_opMode = OP_CREATE;
+}
+
+void CGraphicEditorView::TriangleMode()
+{
+    m_opMode = OperationMode::OP_CREATE_TRIANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::RectangleMode()
+{
+    m_opMode = OperationMode::OP_CREATE_RECTANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::EllipseMode()
+{
+    m_opMode = OperationMode::OP_CREATE_ELLIPSE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
+}
+
+void CGraphicEditorView::Set_LineCategory1()
+{
+    m_border_style = PS_SOLID;
+}
+
+void CGraphicEditorView::Set_LineCategory2()
+{
+    m_border_style = PS_DASH;
+}

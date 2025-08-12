@@ -74,6 +74,15 @@ protected:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void Set_Linecolor();
+	afx_msg void Set_FIlledcolor();
+	afx_msg void LineMode();
+	afx_msg void TriangleMode();
+	afx_msg void RectangleMode();
+	afx_msg void EllipseMode();
+	afx_msg void Set_LineCategory1();
+	afx_msg void Set_LineCategory2();
 };
 
 #ifndef _DEBUG  // GraphicEditorView.cpp 中的调试版本
