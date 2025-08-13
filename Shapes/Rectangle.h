@@ -23,6 +23,8 @@ public:
     bool draw(Gdiplus::Graphics& graphics) override;
 
 private:
+    int x;
+    int y;
     int width;
     int height;
 };

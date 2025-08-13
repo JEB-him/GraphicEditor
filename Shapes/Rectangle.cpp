@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Rectangle.h"
 
+#include <stdexcept>
+
 CRectangle::CRectangle(
     const float& z,
     const int& x,
@@ -16,19 +18,31 @@ CRectangle::CRectangle(
         border_color,
         border_style
     ),
-    width(LENGTH),
-    height(LENGTH){
+    x(),
+    y(),
+    width(),
+    height(){
 }
 
 CCommand CRectangle::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
     CCommand cmd = CShape::scale(pView, mouse_x, mouse_y);
     // TODO: Validate the cmd.
-    width  = new_bwidth;
-    height = new_bheight;
+    width  = new_bwidth - CShape::DIFF;
+    height = new_bheight - CShape::DIFF;
+    if (width < 0 || height < 0) {
+        width  = new_bwidth * 2 / 3;
+        height = new_bheight * 2 / 3;
+        x = new_x + new_bwidth / 6;
+        y = new_y + new_bheight / 6;
+    } else {
+        x = new_x + 1;
+        y = new_y + 1;
+    }
     return cmd;
 }
 
 bool CRectangle::draw(Gdiplus::Graphics& graphics) {
+    drawSelectedBorder(graphics);
     // 创建画笔和画刷
     Gdiplus::Pen pen(Gdiplus::Color(255, 
                      GetRValue(border_color), 
@@ -63,15 +77,15 @@ bool CRectangle::draw(Gdiplus::Graphics& graphics) {
 
     // 绘制填充矩形
     graphics.FillRectangle(&brush, 
-                          static_cast<INT>(new_x), 
-                          static_cast<INT>(new_y), 
-                          static_cast<INT>(width), 
-                          static_cast<INT>(height));
+                           static_cast<INT>(x), 
+                           static_cast<INT>(y), 
+                           static_cast<INT>(width), 
+                           static_cast<INT>(height));
 
     // 绘制边框
     graphics.DrawRectangle(&pen, 
-                           static_cast<INT>(new_x), 
-                           static_cast<INT>(new_y), 
+                           static_cast<INT>(x), 
+                           static_cast<INT>(y), 
                            static_cast<INT>(width), 
                            static_cast<INT>(height));
     return true;
