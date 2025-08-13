@@ -7,7 +7,7 @@
 #include <iostream>
 
 const int   CShape::LENGTH                = 1;
-const int   CShape::DIFF                  = 2;
+const int   CShape::DIFF                  = 20;
 const Color CShape::selected_border_color = RGB(179,179,179);
 const int   CShape::selected_border_width = 2;
 float CShape::z_max = 0;
@@ -215,7 +215,7 @@ bool CShape::drawSelectedBorder(Gdiplus::Graphics& graphics) {
     graphics.DrawRectangle(&pen, 
                            static_cast<INT>(new_x), 
                            static_cast<INT>(new_y), 
-                           static_cast<INT>(new_width), 
-                           static_cast<INT>(new_height));
+                           static_cast<INT>(new_bwidth), 
+                           static_cast<INT>(new_bheight));
     return true;
 }

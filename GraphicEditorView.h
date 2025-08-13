@@ -58,7 +58,7 @@ protected:
     BorderStyle m_border_style = PS_SOLID;
 
     // Opration object
-    CShape* selected_shape;
+    CShape* selected_shape = nullptr;
 
 // 内部函数
 protected:
