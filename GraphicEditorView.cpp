@@ -281,6 +281,9 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
         }
         // Add SELECT Mode (CREATE Mode has been initialized in class)
         pRect->addMode(EditMode::SELECT);
+        // 清除前一个 shape 残留的 EditMode
+        if (selected_shape != nullptr)
+            selected_shape->setMode(0);
         selected_shape = pRect;
         // Increase z_max
         ++CShape::z_max;
