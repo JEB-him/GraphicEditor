@@ -40,14 +40,14 @@ BEGIN_MESSAGE_MAP(CGraphicEditorView, CView)
 	ON_WM_RBUTTONUP()    // 映射右键释放消息
     ON_WM_ERASEBKGND()   // 添加背景擦除处理
     ON_WM_SIZE()         // 添加窗口大小改变处理
-    ON_COMMAND(ID_32771, &CGraphicEditorView::Line)
-    ON_COMMAND(ID_32772, &CGraphicEditorView::Triangle)
-    ON_COMMAND(ID_32773, &CGraphicEditorView::Rectangle)
-    ON_COMMAND(ID_32774, &CGraphicEditorView::Ellipse)
-    ON_COMMAND(ID_32775, &CGraphicEditorView::LineColor)
-    ON_COMMAND(ID_32776, &CGraphicEditorView::FilledColor)
-    ON_COMMAND(ID_32777, &CGraphicEditorView::LineType1)
-    ON_COMMAND(ID_32778, &CGraphicEditorView::LineType2)
+    ON_COMMAND(ID_32773, &CGraphicEditorView::Set_Linecolor)
+    ON_COMMAND(ID_32774, &CGraphicEditorView::Set_FIlledcolor)
+    ON_COMMAND(ID_32775, &CGraphicEditorView::LineMode)
+    ON_COMMAND(ID_32776, &CGraphicEditorView::TriangleMode)
+    ON_COMMAND(ID_32777, &CGraphicEditorView::RectangleMode)
+    ON_COMMAND(ID_32778, &CGraphicEditorView::EllipseMode)
+    ON_COMMAND(ID_32780, &CGraphicEditorView::Set_LineCategory1)
+    ON_COMMAND(ID_32781, &CGraphicEditorView::Set_LineCategory2)
 END_MESSAGE_MAP()
 
 // CGraphicEditorView 构造/析构
@@ -331,7 +331,6 @@ void CGraphicEditorView::EllipseMode()
 }
 
 void CGraphicEditorView::Set_LineCategory1()
-
 {
     m_border_style = PS_SOLID;
 }
