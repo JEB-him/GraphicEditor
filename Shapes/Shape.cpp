@@ -155,10 +155,7 @@ CCommand CShape::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
     //              std::abs(mouse_x - new_x) / new_bwidth :
     //              std::abs(mouse_y - new_y) / new_bheight;
 
-    // TODO: If the width/length is set to 0 after the left mouse
-    // button is released, the controller should react to this r-
-    // eset the size of the shape.
-    if (mouse_x < new_x || mouse_y < new_y) {
+    if (mouse_x <= new_x || mouse_y <= new_y) {
         return {};
     }
 

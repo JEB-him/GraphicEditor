@@ -1,11 +1,11 @@
 
-// Ellipse.cpp
+// Line.cpp
 #include "pch.h"
-#include "Ellipse.h"
+#include "Line.h"
 
 #include <stdexcept>
 
-CEllipse::CEllipse(
+CLine::CLine(
     const float& z,
     const int& x,
     const int& y,
@@ -20,30 +20,52 @@ CEllipse::CEllipse(
         border_color,
         border_style
     ),
-    x(),
-    y(),
-    width(),
-    height(){
+    sx(),
+    sy(),
+    ex(),
+    ey(){
 }
 
-CCommand CEllipse::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
-    CCommand cmd = CShape::scale(pView, mouse_x, mouse_y);
+CCommand CLine::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
+    CCommand cmd =  {};
+    CRect clientRect;
+    pView->GetClientRect(&clientRect);
+
+    int width  = clientRect.Width();
+    int height = clientRect.Height();
+
+    if (mouse_x < 0 || mouse_y < 0 || mouse_x > clientRect.Width() || mouse_y > clientRect.Height()) {
+        throw std::logic_error("x/y is invalid.");
+    }
+    // TODO: mirror scaling function need be added.
+    // int mult = std::abs(mouse_x - new_x) / new_bwidth >
+    //              std::abs(mouse_y - new_y) / new_bheight ? 
+    //              std::abs(mouse_x - new_x) / new_bwidth :
+    //              std::abs(mouse_y - new_y) / new_bheight;
+
+    if (mouse_x <= new_x || mouse_y <= new_y) {
+        return {};
+    }
+
+    new_bwidth  = mouse_x - new_x;
+    new_bheight = mouse_y - new_y;
+
     // TODO: Validate the cmd.
-    width  = new_bwidth - CShape::DIFF;
-    height = new_bheight - CShape::DIFF;
-    if (width < 0 || height < 0) {
-        width  = new_bwidth * 2 / 3;
-        height = new_bheight * 2 / 3;
-        x = new_x + new_bwidth / 6;
-        y = new_y + new_bheight / 6;
+    if (new_bwidth < CShape::DIFF || new_bheight < CShape::DIFF) {
+        sx = new_x + new_bwidth / 6;
+        sy = new_y + new_bheight / 6;
+        ex = sx + new_bwidth * 2 / 3;
+        ey = sy + new_bheight * 2 / 3;
     } else {
-        x = new_x + 1;
-        y = new_y + 1;
+        sx = new_x + 1;
+        sy = new_y + 1;
+        ex = sx + new_bwidth - CShape::DIFF;
+        ey = sy + new_bheight - CShape::DIFF;
     }
     return cmd;
 }
 
-bool CEllipse::draw(Gdiplus::Graphics& graphics) {
+bool CLine::draw(Gdiplus::Graphics& graphics) {
     drawSelectedBorder(graphics);
     // 创建画笔和画刷
     Gdiplus::Pen pen(Gdiplus::Color(255, 
@@ -78,14 +100,14 @@ bool CEllipse::draw(Gdiplus::Graphics& graphics) {
                      GetBValue(filled_color)));
 
     // 绘制填充矩形
-    graphics.FillEllipse(&brush, 
+    graphics.FillLine(&brush, 
                            static_cast<INT>(x), 
                            static_cast<INT>(y), 
                            static_cast<INT>(width), 
                            static_cast<INT>(height));
 
     // 绘制边框
-    graphics.DrawEllipse(&pen, 
+    graphics.DrawLine(&pen, 
                            static_cast<INT>(x), 
                            static_cast<INT>(y), 
                            static_cast<INT>(width), 
@@ -93,7 +115,7 @@ bool CEllipse::draw(Gdiplus::Graphics& graphics) {
     return true;
 }
 
-CCommand CEllipse::rotate(float angle) {
+CCommand CLine::rotate(float angle) {
     return {};
 }
 

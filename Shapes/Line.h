@@ -1,13 +1,13 @@
 
-// Ellipse.h
+// Line.h
 #pragma once
 
 #include "Shape.h"
 
-class CEllipse : public CShape {
+class CLine : public CShape {
 public:
-    CEllipse() = default;
-    CEllipse(
+    CLine() = default;
+    CLine(
         const float& z,
         const int& x,
         const int& y,
@@ -17,15 +17,15 @@ public:
         const BorderStyle border_style
     );
 
-    ~CEllipse() = default;
+    ~CLine() = default;
 
     CCommand scale(CView* pView, const int& mouse_x, const int& mouse_y) override;
     CCommand rotate(float angle) override;
     bool draw(Gdiplus::Graphics& graphics) override;
 
 private:
-    int x;
-    int y;
-    int width;
-    int height;
+    int sx;
+    int sy;
+    int ex;
+    int ey;
 };
