@@ -130,5 +130,5 @@ protected:
     Color border_color {};
 
     // Mode
-    unsigned int mode = EditMode::CREATE;
+    unsigned int mode = EditMode::CREATE | EditMode::SELECT;
 };

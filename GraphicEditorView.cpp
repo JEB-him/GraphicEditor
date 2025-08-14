@@ -16,6 +16,8 @@
 // Shapes
 #include "Shapes/Shape.h"
 #include "Shapes/Rectangle.h"
+#include "Shapes/Line.h"
+#include "Shapes/Ellipse.h"
 
 #include <stdexcept>
 
@@ -264,8 +266,10 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
         return;
     }
 
+    CShape* pShape = nullptr;
+
     if (m_opMode & OperationMode::OP_CREATE_RECTANGLE) {
-        CRectangle* pRect = new CRectangle(
+        pShape = new CRectangle(
             CShape::z_max,
             x,
             y,
@@ -274,20 +278,40 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
             m_border_color,
             m_border_style
         );
-        bool isSussussed = pDoc->AddShape(pRect);
-        if (!isSussussed) {
-            delete pRect; // 添加失败时释放内存
-            throw std::runtime_error("Failed to add rectangle.");
-        }
-        // Add SELECT Mode (CREATE Mode has been initialized in class)
-        pRect->addMode(EditMode::SELECT);
-        // 清除前一个 shape 残留的 EditMode
-        if (selected_shape != nullptr)
-            selected_shape->setMode(0);
-        selected_shape = pRect;
-        // Increase z_max
-        ++CShape::z_max;
+    } else if (m_opMode & OperationMode::OP_CREATE_ELLIPSE) {
+        pShape = new CEllipse(
+            CShape::z_max,
+            x,
+            y,
+            m_filled_color,
+            m_border_width,
+            m_border_color,
+            m_border_style
+        );
+    } else if (m_opMode & OperationMode::OP_CREATE_LINE) {
+        pShape = new CLine(
+            CShape::z_max,
+            x,
+            y,
+            m_filled_color,
+            m_border_width,
+            m_border_color,
+            m_border_style
+        );
+    } else {
+        throw std::runtime_error("Unknown Create Mode.");
     }
+    bool isSussussed = pDoc->AddShape(pShape);
+    if (!isSussussed) {
+        delete pShape; // 添加失败时释放内存
+        throw std::runtime_error("Failed to add Shape.");
+    }
+    // 清除前一个 shape 残留的 EditMode
+    if (selected_shape != nullptr)
+        selected_shape->setMode(0);
+    selected_shape = pShape;
+    // Increase z_max
+    ++CShape::z_max;
 }
 
 // CGraphicEditorView 消息处理程序
