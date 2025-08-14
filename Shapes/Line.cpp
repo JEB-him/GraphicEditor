@@ -112,3 +112,7 @@ CCommand CLine::rotate(float angle) {
     return {};
 }
 
+bool CLine::inShape(const int&x, const int&y) const {
+    // TODO By Hao Jiang: Compeleted it.
+    return false;
+}

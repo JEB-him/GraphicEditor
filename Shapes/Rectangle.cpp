@@ -95,3 +95,6 @@ CCommand CRectangle::rotate(float angle) {
     return {};
 }
 
+bool CRectangle::inShape(const int& x, const int& y) const {
+    return x >= this->x && y >= this->y && x <= this->x + this->width && y <= this->y + this->height;
+}

@@ -122,3 +122,7 @@ CCommand CTriangle::rotate(float angle) {
     return {};
 }
 
+bool CTriangle::inShape(const int&x, const int&y) const {
+    // TODO By Hao Jiang: Compeleted it.
+    return false;
+}

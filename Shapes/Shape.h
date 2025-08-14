@@ -86,6 +86,10 @@ public:
      * @note  Note the boundary of the window.
      */
     virtual CCommand rotate(float angle) = 0;
+    /**
+     * @brief Judge if the point in the shape.
+     */
+    virtual bool inShape(const int& x, const int& y) const = 0; 
 
 protected:
     bool drawSelectedBorder(Gdiplus::Graphics& graphics);

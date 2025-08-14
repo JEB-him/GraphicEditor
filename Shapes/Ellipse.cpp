@@ -97,3 +97,7 @@ CCommand CEllipse::rotate(float angle) {
     return {};
 }
 
+bool CEllipse::inShape(const int&x, const int&y) const {
+    // TODO By Hao Jiang: Compeleted it.
+    return false;
+}
