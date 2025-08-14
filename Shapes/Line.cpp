@@ -99,19 +99,12 @@ bool CLine::draw(Gdiplus::Graphics& graphics) {
                      GetGValue(filled_color), 
                      GetBValue(filled_color)));
 
-    // 绘制填充矩形
-    graphics.FillLine(&brush, 
-                           static_cast<INT>(x), 
-                           static_cast<INT>(y), 
-                           static_cast<INT>(width), 
-                           static_cast<INT>(height));
-
     // 绘制边框
     graphics.DrawLine(&pen, 
-                           static_cast<INT>(x), 
-                           static_cast<INT>(y), 
-                           static_cast<INT>(width), 
-                           static_cast<INT>(height));
+                           static_cast<INT>(sx), 
+                           static_cast<INT>(sy), 
+                           static_cast<INT>(ex), 
+                           static_cast<INT>(ey));
     return true;
 }
 
