@@ -117,6 +117,8 @@ void CGraphicEditorView::OnDraw(CDC* pDC)
             }
         }
 
+        DrawPoints();
+
         // 绘制到内存DC
         graphics.DrawImage(&bufferBmp, 0, 0);
     }
@@ -197,7 +199,8 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SELECT) {
         // SELECT mode
         if (m_opMode & OperationMode::OP_CREATE) {
-            m_opMode ^= OperationMode::OP_SCALE;
+            if (m_opMode & OperationMode::OP_SCALE)
+                m_opMode ^= OperationMode::OP_SCALE;
         }
         else {
             m_opMode = OperationMode::OP_SELECT;
@@ -311,7 +314,6 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
             m_border_style
         );
     } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
-        ClearPoints();
         pShape = new CTriangle(
             CShape::z_max,
             m_points[1].X, m_points[1].Y,
@@ -322,6 +324,7 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
             m_border_color,
             m_border_style
         );
+        ClearPoints();
         pShape->setMode(EditMode::SELECT);
     } else {
         throw std::runtime_error("Unknown Create Mode.");
@@ -343,6 +346,56 @@ void CGraphicEditorView::ClearPoints() {
     m_pn = 0;
     for (int i = 0; i < MAX_POINTS; ++i)
         m_points[i].X = m_points[i].Y = -1;
+}
+
+void CGraphicEditorView::DrawPoints() {
+    drawSelectedm_border(graphics);
+    // 创建画笔和画刷
+    Gdiplus::Pen pen(Gdiplus::Color(255, 
+                     GetRValue(m_border_color), 
+                     GetGValue(m_border_color), 
+                     GetBValue(m_border_color)), 
+                     static_cast<Gdiplus::REAL>(m_border_width));
+    // 设置线条类型
+        pen.SetDashStyle(Gdiplus::DashStyleSolid);
+    switch (m_border_style) {
+        case PS_SOLID:
+            break;
+        case PS_DASH:
+            pen.SetDashStyle(Gdiplus::DashStyleDash);
+            break;
+        case PS_DOT:
+            pen.SetDashStyle(Gdiplus::DashStyleDot);
+            break;
+        case PS_DASHDOT:
+            pen.SetDashStyle(Gdiplus::DashStyleDashDot);
+            break;
+        case PS_DASHDOTDOT:
+            pen.SetDashStyle(Gdiplus::DashStyleDashDotDot);
+            break;
+        default:
+            pen.SetDashStyle(Gdiplus::DashStyleSolid);
+    }
+
+    int i = 1;
+    for (; i < m_pn; ++i) {
+        if (m_points[i].X != -1) {
+            graphics.DrawLine(&pen, 
+                              static_cast<INT>(m_points[i - 1].X), 
+                              static_cast<INT>(m_points[i - 1].Y), 
+                              static_cast<INT>(m_points[i].X), 
+                              static_cast<INT>(m_points[i].Y));
+        } else break;
+    }
+
+    if (i <= 2) return;
+
+    graphics.DrawLine(&pen, 
+                      static_cast<INT>(m_points[i - 1].X), 
+                      static_cast<INT>(m_points[i - 1].Y), 
+                      static_cast<INT>(m_points[0].X), 
+                      static_cast<INT>(m_points[0].Y));
+
 }
 
 // CGraphicEditorView 消息处理程序

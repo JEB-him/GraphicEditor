@@ -67,6 +67,7 @@ protected:
 protected:
     void CreateShape(const int& x = 0, const int& y = 0);
     void ClearPoints();
+    void DrawPoints();
 
 // 生成的消息映射函数
 protected:
