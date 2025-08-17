@@ -117,7 +117,7 @@ void CGraphicEditorView::OnDraw(CDC* pDC)
             }
         }
 
-        DrawPoints();
+        DrawPoints(bufferGraphics);
 
         // 绘制到内存DC
         graphics.DrawImage(&bufferBmp, 0, 0);
@@ -205,7 +205,7 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
         else {
             m_opMode = OperationMode::OP_SELECT;
         }
-        selected_shape->setMode(EditMode::SELECT);
+        if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else {
 
@@ -316,9 +316,9 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
     } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
         pShape = new CTriangle(
             CShape::z_max,
+            m_points[0].X, m_points[0].Y,
             m_points[1].X, m_points[1].Y,
             m_points[2].X, m_points[2].Y,
-            m_points[3].X, m_points[3].Y,
             m_filled_color,
             m_border_width,
             m_border_color,
@@ -348,8 +348,7 @@ void CGraphicEditorView::ClearPoints() {
         m_points[i].X = m_points[i].Y = -1;
 }
 
-void CGraphicEditorView::DrawPoints() {
-    drawSelectedm_border(graphics);
+void CGraphicEditorView::DrawPoints(Gdiplus::Graphics& graphics) {
     // 创建画笔和画刷
     Gdiplus::Pen pen(Gdiplus::Color(255, 
                      GetRValue(m_border_color), 
@@ -378,7 +377,7 @@ void CGraphicEditorView::DrawPoints() {
     }
 
     int i = 1;
-    for (; i < m_pn; ++i) {
+    for (; i < MAX_POINTS; ++i) {
         if (m_points[i].X != -1) {
             graphics.DrawLine(&pen, 
                               static_cast<INT>(m_points[i - 1].X), 

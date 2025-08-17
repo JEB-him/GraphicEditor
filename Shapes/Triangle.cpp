@@ -24,19 +24,23 @@ CTriangle::CTriangle(
         CRect rect = getSmallRect();
         if (rect.left > CShape::DIFF) rect.left = rect.left - CShape::DIFF;
         if (rect.top > CShape::DIFF) rect.top = rect.top - CShape::DIFF;
+        if (rect.right > CShape::DIFF) rect.right = rect.right + CShape::DIFF;
+        if (rect.bottom > CShape::DIFF) rect.bottom = rect.bottom + CShape::DIFF;
         this->new_x = rect.left, this->new_y = rect.top;
+        this->new_bheight = rect.bottom - rect.top;
+        this->new_bwidth = rect.right - rect.left;
 }
 
 CRect CTriangle::getSmallRect() const {
-    int left_x = (points[1].X < points[2].X ? points[1].X : points[2].X);
-    left_x = (left_x < points[3].X ? left_x : points[3].X);
-    int right_x = (points[1].X > points[2].X ? points[1].X : points[2].X);
-    right_x = (right_x > points[3].X ? right_x : points[3].X);
+    int left_x = (points[0].X < points[1].X ? points[0].X : points[1].X);
+    left_x = (left_x < points[2].X ? left_x : points[2].X);
+    int right_x = (points[0].X > points[1].X ? points[0].X : points[1].X);
+    right_x = (right_x > points[2].X ? right_x : points[2].X);
   
-    int down_y = (points[1].Y < points[2].Y ? points[1].Y : points[2].Y);
-    down_y = (down_y < points[3].Y ? down_y : points[3].Y);
-    int up_y = (points[1].Y > points[2].Y ? points[1].Y : points[2].Y);
-    up_y = (up_y > points[3].Y ? up_y : points[3].Y);
+    int up_y = (points[0].Y < points[1].Y ? points[0].Y : points[1].Y);
+    up_y = (up_y < points[2].Y ? up_y : points[2].Y);
+    int down_y = (points[0].Y > points[1].Y ? points[0].Y : points[1].Y);
+    down_y = (down_y > points[2].Y ? down_y : points[2].Y);
   
     return {left_x, up_y, right_x, down_y};
 }
