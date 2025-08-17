@@ -49,6 +49,7 @@ public:
 #endif
 
 protected:
+    static const int MAX_POINTS = 20;
     unsigned int m_opMode = OperationMode::OP_NONE;
 
     // Drawing properties.
@@ -56,13 +57,16 @@ protected:
     Color       m_border_color = RGB(0, 0, 0);       // Default: Black.
     BorderWidth m_border_width = 2;
     BorderStyle m_border_style = PS_SOLID;
+    int         m_pn           = 0;
+    PointF      m_points[MAX_POINTS];
 
     // Opration object
     CShape* selected_shape = nullptr;
 
 // 内部函数
 protected:
-    void CreateShape(const int& x, const int& y);
+    void CreateShape(const int& x = 0, const int& y = 0);
+    void ClearPoints();
 
 // 生成的消息映射函数
 protected:

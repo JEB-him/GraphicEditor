@@ -171,7 +171,14 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     // 创建图形
-    if (m_opMode & OperationMode::OP_CREATE) {
+    if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+        if (m_pn == 0 && selected_shape != nullptr)
+            selected_shape->setMode(0);
+        m_points[m_pn].X   = point.x;
+        m_points[m_pn++].Y = point.y;
+        if (m_pn == 3) CreateShape();
+        Invalidate();
+    } else if (m_opMode & OperationMode::OP_CREATE) {
         CreateShape(point.x, point.y);
         // Switch to SCALE mode afetr shape creation.
         m_opMode |= OperationMode::OP_SCALE;
@@ -223,6 +230,10 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
         selected_shape->scale(this, point.x, point.y);
         Invalidate();
         //InvalidateRect(updateRect);  // 关键调用
+    } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+        m_points[m_pn].X = point.x;
+        m_points[m_pn].Y = point.Y;
+        Invalidate();
     }
 }
 
@@ -298,6 +309,19 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
             m_border_color,
             m_border_style
         );
+    } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+        ClearPoints();
+        pShape = new CTriangle(
+            CShape::z_max,
+            m_points[1].X, m_points[1].Y,
+            m_points[2].X, m_points[2].Y,
+            m_points[3].X, m_points[3].Y,
+            m_filled_color,
+            m_border_width,
+            m_border_color,
+            m_border_style
+        );
+        pShape->setMode(EditMode::SELECT);
     } else {
         throw std::runtime_error("Unknown Create Mode.");
     }
@@ -312,6 +336,12 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
     selected_shape = pShape;
     // Increase z_max
     ++CShape::z_max;
+}
+
+void CGraphicEditorView::ClearPoints() {
+    m_pn = 0;
+    for (int i = 0; i < MAX_POINTS; ++i)
+        m_points[i].X = m_points[i].Y = -1;
 }
 
 // CGraphicEditorView 消息处理程序
@@ -344,6 +374,7 @@ void CGraphicEditorView::LineMode()
 
 void CGraphicEditorView::TriangleMode()
 {
+    ClearPoints();
     m_opMode = OperationMode::OP_CREATE_TRIANGLE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
 }
 
