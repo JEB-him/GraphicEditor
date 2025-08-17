@@ -58,7 +58,7 @@ protected:
     BorderWidth m_border_width = 2;
     BorderStyle m_border_style = PS_SOLID;
     int         m_pn           = 0;
-    PointF      m_points[MAX_POINTS];
+    Gdiplus::PointF      m_points[MAX_POINTS];
 
     // Opration object
     CShape* selected_shape = nullptr;

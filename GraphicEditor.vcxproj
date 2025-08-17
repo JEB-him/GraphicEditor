@@ -199,6 +199,7 @@
     <ClInclude Include="Shapes\Line.h" />
     <ClInclude Include="Shapes\Rectangle.h" />
     <ClInclude Include="Shapes\Shape.h" />
+    <ClInclude Include="Shapes\Triangle.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
@@ -221,6 +222,7 @@
     <ClCompile Include="Shapes\Line.cpp" />
     <ClCompile Include="Shapes\Rectangle.cpp" />
     <ClCompile Include="Shapes\Shape.cpp" />
+    <ClCompile Include="Shapes\Triangle.cpp" />
     <ClCompile Include="ViewTree.cpp" />
   </ItemGroup>
   <ItemGroup>

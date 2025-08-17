@@ -16,6 +16,7 @@
 // Shapes
 #include "Shapes/Shape.h"
 #include "Shapes/Rectangle.h"
+#include "Shapes/Triangle.h"
 #include "Shapes/Line.h"
 #include "Shapes/Ellipse.h"
 
@@ -232,7 +233,7 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
         //InvalidateRect(updateRect);  // 关键调用
     } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
         m_points[m_pn].X = point.x;
-        m_points[m_pn].Y = point.Y;
+        m_points[m_pn].Y = point.y;
         Invalidate();
     }
 }
@@ -369,7 +370,7 @@ void CGraphicEditorView::Set_FIlledcolor()
 
 void CGraphicEditorView::LineMode()
 {
-    m_opMode = OP_CREATE;
+    m_opMode = OperationMode::OP_CREATE_LINE | OperationMode::OP_SELECT | OperationMode::OP_CREATE;
 }
 
 void CGraphicEditorView::TriangleMode()

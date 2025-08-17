@@ -20,14 +20,14 @@ CTriangle::CTriangle(
         border_color,
         border_style
     ),
-    points {PointF(x1, y1), PointF(x2, y2), PointF(x3, y3)} {
+    points {Gdiplus::PointF(x1, y1), Gdiplus::PointF(x2, y2), Gdiplus::PointF(x3, y3)} {
         CRect rect = getSmallRect();
         if (rect.left > CShape::DIFF) rect.left = rect.left - CShape::DIFF;
         if (rect.top > CShape::DIFF) rect.top = rect.top - CShape::DIFF;
         this->new_x = rect.left, this->new_y = rect.top;
 }
 
-CRect CTriangle::getSmallRect() {
+CRect CTriangle::getSmallRect() const {
     int left_x = (points[1].X < points[2].X ? points[1].X : points[2].X);
     left_x = (left_x < points[3].X ? left_x : points[3].X);
     int right_x = (points[1].X > points[2].X ? points[1].X : points[2].X);

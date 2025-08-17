@@ -26,5 +26,5 @@ const BorderStyle border_style
     bool draw(Gdiplus::Graphics& graphics) override;
 
 private:
-    PointF points[3];  // 三角形的三个顶点
+    Gdiplus::PointF points[3];  // 三角形的三个顶点
 };
