@@ -173,42 +173,78 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 }
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
-    // 创建图形
-    if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+    if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {     // 创建三角形 
         if (m_pn == 0 && selected_shape != nullptr)
             selected_shape->setMode(0);
         m_points[m_pn].X   = point.x;
         m_points[m_pn++].Y = point.y;
         if (m_pn == 3) CreateShape();
         Invalidate();
-    } else if (m_opMode & OperationMode::OP_CREATE) {
+    } else if (m_opMode & OperationMode::OP_CREATE) {       // 创建图形
         CreateShape(point.x, point.y);
         // Switch to SCALE mode afetr shape creation.
         m_opMode |= OperationMode::OP_SCALE;
         Invalidate();
         return;
-    } else if (m_opMode & OperationMode::OP_SELECT) {
-        // TODO: Check if click the empty area.
-    } else if (m_opMode == 0) {
-        // TODO: Check if click any combination or shape.
+    } else if (m_opMode == OperationMode::OP_SELECT) {       // 选择模式
+        if (selected_shape == nullptr) throw std::runtime_error("Invalid opMode.");
+        int back_code = selected_shape->inShape();
+        switch(back_code) {
+            case 0:
+                m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
+                selected_shape.setMode(EditMode::SCALE);
+                break;
+            case 1:
+                m_opMode = OperationMode::OP_MOVE | OperationMode::OP_SELECT;
+                selected_shape.setMode(EditMode::MOVE);
+                break;
+            case 2:
+                break;
+            case -1:
+                m_opMode = OperationMode::OP_NONE;
+                selected_shape.setMode(EditMode::NONE);
+                break;
+            default:
+                throw std::runtime_error("Unknown Back Code.");
+        }
+    } else if (m_opMode == 0) {                             // NONE
+        if (selected_shape) throw std::runtime_error("Invalid opMode.");
+        CGraphicEditorDoc* pDoc = GetDocument();
+        if (pDoc) {
+            const CObArray& shapes = pDoc->GetShapes();
+            for (int i = 0; i < shapes.GetCount(); i++) {
+                if (CShape* pShape = dynamic_cast<CShape*>(shapes[i])) {
+                    int back_code = pShape->inShape();
+                    if (back_code == 2) {
+                        selected_shape = pShape;
+                        pShape->setMode(EditMode::SELECT);
+                        m_opMode = OperationMode::OP_SELECT;
+                        break;
+                    }
+                }
+            }
+        }
+        return;
     } else {
       throw std::runtime_error("Unknown Operation Mode.");
     }
 }
 afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
-    if (m_opMode & OperationMode::OP_SELECT) {
-        // SELECT mode
-        if (m_opMode & OperationMode::OP_CREATE) {
-            if (m_opMode & OperationMode::OP_SCALE)
-                m_opMode ^= OperationMode::OP_SCALE;
-        }
-        else {
-            m_opMode = OperationMode::OP_SELECT;
-        }
+    if (m_opMode & OperationMode::OP_CREATE) {
+        if (m_opMode & OperationMode::OP_SCALE)
+            m_opMode ^= OperationMode::OP_SCALE;
         if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
         Invalidate();
-    } else {
-
+    } else if (m_opMode & OperationMode::OP_SCALE) {
+        m_opMode = OperationMode::OP_SELECT;
+        if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
+        ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
+        Invalidate();
+    } else if (m_opMode & OperationMode::OP_MOVE) {
+        m_opMode = OperationMode::OP_SELECT;
+        if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
+        ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
+        Invalidate();
     }
 
 }
@@ -238,6 +274,29 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
         m_points[m_pn].X = point.x;
         m_points[m_pn].Y = point.y;
         Invalidate();
+    } else if (m_opMode & OperationMode::OP_MOVE) {
+        selected_shape->move(this, point.x, point.y);
+        Invalidate();
+    } else if (m_opMode == OperationMode::OP_SELECT) {
+        int back_code = selected_shape->inShape();
+        switch(back_code) {
+            case 0:
+                ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));
+                break;
+            case 1:
+                ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEALL));
+                break;
+            case 2:
+            case -1:
+                ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
+                break;
+            default:
+                throw std::runtime_error("Unknown Back Code.");
+        }
+    } else if (m_opMode == OperationMode::NONE) {
+        return;
+    } else {
+        throw std::runtime_error("Unkonwn Opretion Mode.");
     }
 }
 
