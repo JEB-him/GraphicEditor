@@ -76,6 +76,21 @@ CCommand CTriangle::scale(CView* pView, const int& mouse_x, const int& mouse_y) 
     return {};
 }
 
+CCommand CTriangle::move(CView* pView, const int& x, const int& y) override {
+    // 先求相对坐标
+    float rposx[3], rposy[3];
+    for (int i = 0; i < 3; ++i) {
+        rposx[i] = points[i].X - new_x;
+        rposy[i] = points[i].Y - new_y;
+    }
+    // 调用基类 move()
+    CShape::move(pView, x, y);
+    for (int i = 0; i < 3; ++i) {
+        points[i].X = rposx[i] + new_x;
+        points[i].Y = rposy[i] + new_y;
+    }
+}
+
 bool CTriangle::draw(Gdiplus::Graphics& graphics) {
     drawSelectedBorder(graphics);
     // 创建画笔和画刷

@@ -43,6 +43,13 @@ CCommand CEllipse::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
     return cmd;
 }
 
+CCommand CEllipse::move(CView* pView, const int& x, const int& y) override {
+    // 调用基类 move()
+    CShape::move(pView, x, y);
+    this->x = new_x + CShape::DIFF;
+    this->y = new_y + CShape::DIFF;
+}
+
 bool CEllipse::draw(Gdiplus::Graphics& graphics) {
     drawSelectedBorder(graphics);
     // 创建画笔和画刷
