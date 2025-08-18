@@ -37,8 +37,8 @@ CCommand CEllipse::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         x = new_x + new_bwidth / 6;
         y = new_y + new_bheight / 6;
     } else {
-        x = new_x + 1;
-        y = new_y + 1;
+        x = new_x + CShape::DIFF;
+        y = new_y + CShape::DIFF;
     }
     return cmd;
 }

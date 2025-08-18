@@ -57,8 +57,8 @@ CCommand CLine::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         ex = sx + new_bwidth * 2 / 3;
         ey = sy + new_bheight * 2 / 3;
     } else {
-        sx = new_x + 1;
-        sy = new_y + 1;
+        sx = new_x + CShape::DIFF;
+        sy = new_y + CShape::DIFF;
         ex = sx + new_bwidth - CShape::DIFF;
         ey = sy + new_bheight - CShape::DIFF;
     }
