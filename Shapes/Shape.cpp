@@ -6,17 +6,17 @@
 #include <stdexcept>
 #include <iostream>
 
-const int   CShape::LENGTH                = 1;
-const int   CShape::DIFF                  = 20;
-const int   CShape::SCOPE                 = 5;
+const float   CShape::LENGTH                = 1;
+const float   CShape::DIFF                  = 20;
+const float   CShape::SCOPE                 = 5;
 const Color CShape::selected_border_color = RGB(179,179,179);
 const int   CShape::selected_border_width = 2;
 float CShape::z_max = 0;
 
 CShape::CShape(
     const float& z,
-    const int& x,
-    const int& y,
+    const float& x,
+    const float& y,
     const Color& filled_color,
     const BorderWidth& border_width,
     const Color& border_color,
@@ -150,13 +150,8 @@ CCommand CShape::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
     if (mouse_x < 0 || mouse_y < 0 || mouse_x > clientRect.Width() || mouse_y > clientRect.Height()) {
         throw std::logic_error("x/y is invalid.");
     }
-    // TODO: mirror scaling function need be added.
-    // int mult = std::abs(mouse_x - new_x) / new_bwidth >
-    //              std::abs(mouse_y - new_y) / new_bheight ? 
-    //              std::abs(mouse_x - new_x) / new_bwidth :
-    //              std::abs(mouse_y - new_y) / new_bheight;
 
-    if (mouse_x <= new_x || mouse_y <= new_y) {
+    if (mouse_x <= new_x + CShape::DIFF || mouse_y <= new_y + CShape::DIFF) {
         return {};
     }
 
@@ -166,12 +161,12 @@ CCommand CShape::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         return {};
     }
 
-    int mult = mouse_x - new_x / new_bwidth >
-                 mouse_y - new_y / new_bheight ? 
-                 mouse_x - new_x / new_bwidth :
-                 mouse_y - new_y / new_bheight;
-
-    new_bwidth  *= mult;
+    float mult;
+    float multx = (float)(mouse_x - new_x) / new_bwidth;
+    float multy = (float)(mouse_y - new_y) / new_bheight;
+    if (multx > multy) mult = multx;
+    else mult = multy;
+    new_bwidth *= mult;
     new_bheight *= mult;
 
     return {};

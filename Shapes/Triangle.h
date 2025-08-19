@@ -20,6 +20,7 @@ const BorderStyle border_style
     ~CTriangle() = default;
 
     CRect getSmallRect() const;
+    bool updateRect();
 
     CCommand scale(CView* pView, const int& mouse_x, const int& mouse_y) override;
     CCommand move(CView* pView, const int& x, const int& y) override;

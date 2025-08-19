@@ -29,8 +29,8 @@ public:
     //CShape() = default;
     CShape(
         const float& z,
-        const int& x,
-        const int& y,
+        const float& x,
+        const float& y,
         const Color& filled_color,
         const BorderWidth& border_width,
         const Color& border_color,
@@ -98,9 +98,9 @@ protected:
     // TODO: 当增删成员变量的时候修改对应序列化代码
 
     // The initial width and height of a shape
-    const static int LENGTH;
-    const static int DIFF;
-    const static int SCOPE;  // 控制鼠标检测范围
+    const static float LENGTH;
+    const static float DIFF;
+    const static float SCOPE;  // 控制鼠标检测范围
     const static Color selected_border_color;
     const static int selected_border_width;
     // A pointer point to view.
@@ -117,16 +117,16 @@ protected:
     // |                |
     // |                |
     // (0, +) ---- (+, +)
-    int old_x       = -1;
-    int old_y       = -1;
-    int old_bwidth  = -1;
-    int old_bheight = -1;
+    float old_x       = -1;
+    float old_y       = -1;
+    float old_bwidth  = -1;
+    float old_bheight = -1;
 
     // New smallest rectangle
-    int new_x       = -1;
-    int new_y       = -1;
-    int new_bwidth  = -1;
-    int new_bheight = -1;
+    float new_x       = -1;
+    float new_y       = -1;
+    float new_bwidth  = -1;
+    float new_bheight = -1;
 
     // padding
     Color filled_color {};

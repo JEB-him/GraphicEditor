@@ -115,7 +115,7 @@ int CRectangle::inShape(const int& x, const int& y) const {
         return 0;
     }
 
-    // 2. 检查是否在虚线框及附近范围内（返回1）
+    
     CRect expandedRect(rect.left - CShape::SCOPE,
         rect.top - CShape::SCOPE,
         rect.right + CShape::SCOPE,
@@ -127,6 +127,7 @@ int CRectangle::inShape(const int& x, const int& y) const {
         y <= (this->y + height + CShape::SCOPE)) {
         return 2;
     }
+    // 2. 检查是否在虚线框及附近范围内（返回1）
     if (expandedRect.PtInRect(CPoint(x, y))) {
         return 1;
     }

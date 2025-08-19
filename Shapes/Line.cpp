@@ -38,7 +38,7 @@ CCommand CLine::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         throw std::logic_error("x/y is invalid.");
     }
     // TODO: mirror scaling function need be added.
-    // int mult = std::abs(mouse_x - new_x) / new_bwidth >
+    // int float = std::abs(mouse_x - new_x) / new_bwidth >
     //              std::abs(mouse_y - new_y) / new_bheight ? 
     //              std::abs(mouse_x - new_x) / new_bwidth :
     //              std::abs(mouse_y - new_y) / new_bheight;
@@ -124,8 +124,8 @@ CCommand CLine::rotate(float angle) {
 
 int CLine::inShape(const int&x, const int&y) const {
     // 1. 检查是否在虚线框右下角范围内
-    if (x >= (new_x + new_bwidth - CShape::SCOPE) &&
-        y >= (new_y + new_bheight - CShape::SCOPE)) {
+    if (x >= (new_x + new_bwidth - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE) &&
+        y >= (new_y + new_bheight - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE)) {
         return 0;
     }
 

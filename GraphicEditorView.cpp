@@ -21,6 +21,7 @@
 #include "Shapes/Ellipse.h"
 
 #include <stdexcept>
+#include <typeinfo>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -193,17 +194,19 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
         switch(back_code) {
             case 0:
                 m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
-                selected_shape->setMode(EditMode::SCALE);
+                selected_shape->setMode(EditMode::SCALE | EditMode::SELECT);
                 break;
             case 1:
                 m_opMode = OperationMode::OP_MOVE | OperationMode::OP_SELECT;
-                selected_shape->setMode(EditMode::MOVE);
+                selected_shape->setMode(EditMode::MOVE | EditMode::SELECT);
                 break;
             case 2:
                 break;
             case -1:
                 m_opMode = OperationMode::OP_NONE;
                 selected_shape->setMode(EditMode::NONE);
+                selected_shape = nullptr;
+                Invalidate();
                 break;
             default:
                 throw std::runtime_error("Unknown Back Code.");
@@ -235,11 +238,17 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_CREATE) {
         if (m_opMode & OperationMode::OP_SCALE)
             m_opMode ^= OperationMode::OP_SCALE;
-        if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
+        if (selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
         Invalidate();
     } else if (m_opMode & OperationMode::OP_SCALE) {
         m_opMode = OperationMode::OP_SELECT;
-        if(selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
+        if (selected_shape != nullptr) {
+            selected_shape->setMode(EditMode::SELECT);
+            if (typeid(*selected_shape) == typeid(CTriangle)) {
+                CTriangle* pTriangle = dynamic_cast<CTriangle*>(selected_shape);
+                pTriangle->updateRect();
+            }
+        }
         ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_ARROW));
         Invalidate();
     } else if (m_opMode & OperationMode::OP_MOVE) {
@@ -256,16 +265,13 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
         selected_shape->scale(this, point.x, point.y);
         Invalidate();
         //InvalidateRect(updateRect);  // 关键调用
-    }
-    else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+    } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
         m_points[m_pn].X = point.x;
         m_points[m_pn].Y = point.y;
         Invalidate();
-    }
-    else if (m_opMode & OperationMode::OP_CREATE) {
+    } else if (m_opMode & OperationMode::OP_CREATE) {
         return;
-    }
-    else if (m_opMode & OperationMode::OP_MOVE) {
+    } else if (m_opMode & OperationMode::OP_MOVE) {
         selected_shape->move(this, point.x, point.y);
         Invalidate();
     } else if (m_opMode == OperationMode::OP_SELECT) {
@@ -515,7 +521,7 @@ void CGraphicEditorView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
             m_points[i] ={-1,-1};
         }
         m_pn = 0;
-        selected_shape->setMode(0);
+        if (selected_shape) selected_shape->setMode(0);
         selected_shape = nullptr;
         Invalidate();
         break;

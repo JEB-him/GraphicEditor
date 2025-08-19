@@ -106,8 +106,8 @@ CCommand CEllipse::rotate(float angle) {
 }
 
 int CEllipse::inShape(const int&x, const int&y) const {
-    if (x >= (new_x + new_bwidth - CShape::SCOPE) &&
-        y >= (new_y + new_bheight - CShape::SCOPE)) {
+    if (x >= (new_x + new_bwidth - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE) &&
+        y >= (new_y + new_bheight - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE)) {
         return 0;
     }
 
