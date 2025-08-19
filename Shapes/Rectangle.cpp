@@ -41,11 +41,12 @@ CCommand CRectangle::scale(CView* pView, const int& mouse_x, const int& mouse_y)
     return cmd;
 }
 
-CCommand CRectangle::move(CView* pView, const int& x, const int& y) override {
+CCommand CRectangle::move(CView* pView, const int& x, const int& y) {
     // 调用基类 move()
     CShape::move(pView, x, y);
     this->x = new_x + CShape::DIFF;
     this->y = new_y + CShape::DIFF;
+    return {};
 }
 
 bool CRectangle::draw(Gdiplus::Graphics& graphics) {
@@ -102,6 +103,37 @@ CCommand CRectangle::rotate(float angle) {
     return {};
 }
 
-bool CRectangle::inShape(const int& x, const int& y) const {
-    return x >= this->x && y >= this->y && x <= this->x + this->width && y <= this->y + this->height;
+int CRectangle::inShape(const int& x, const int& y) const {
+    // 1. 检查是否在虚线框右下角范围内（返回0）
+    CRect rect(new_x, new_y, new_x + new_bwidth, new_y + new_bheight);
+    CRect handleRect(rect.right - CShape::SCOPE,
+        rect.bottom - CShape::SCOPE,
+        rect.right + CShape::SCOPE,
+        rect.bottom + CShape::SCOPE);
+
+    if (handleRect.PtInRect(CPoint(x, y))) {
+        return 0;
+    }
+
+    // 2. 检查是否在虚线框及附近范围内（返回1）
+    CRect expandedRect(rect.left - CShape::SCOPE,
+        rect.top - CShape::SCOPE,
+        rect.right + CShape::SCOPE,
+        rect.bottom + CShape::SCOPE);
+    
+    // 3. 检查是否在矩形内部（返回2）
+    if (x >= this->x - CShape::SCOPE && y >= this->y - CShape::SCOPE &&
+        x <= (this->x + width + CShape::SCOPE) &&
+        y <= (this->y + height + CShape::SCOPE)) {
+        return 2;
+    }
+    if (expandedRect.PtInRect(CPoint(x, y))) {
+        return 1;
+    }
+
+    
+
+    // 4. 都不满足（返回-1）
+    return -1;
+
 }

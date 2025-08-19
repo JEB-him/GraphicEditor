@@ -37,17 +37,18 @@ CCommand CEllipse::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         x = new_x + new_bwidth / 6;
         y = new_y + new_bheight / 6;
     } else {
-        x = new_x + CShape::DIFF;
-        y = new_y + CShape::DIFF;
+        x = new_x + CShape::DIFF/2;
+        y = new_y + CShape::DIFF/2;
     }
     return cmd;
 }
 
-CCommand CEllipse::move(CView* pView, const int& x, const int& y) override {
+CCommand CEllipse::move(CView* pView, const int& x, const int& y){
     // 调用基类 move()
     CShape::move(pView, x, y);
-    this->x = new_x + CShape::DIFF;
-    this->y = new_y + CShape::DIFF;
+    this->x = new_x + CShape::DIFF/2;
+    this->y = new_y + CShape::DIFF/2;
+    return { };
 }
 
 bool CEllipse::draw(Gdiplus::Graphics& graphics) {
@@ -104,7 +105,34 @@ CCommand CEllipse::rotate(float angle) {
     return {};
 }
 
-bool CEllipse::inShape(const int&x, const int&y) const {
-    // TODO By Hao Jiang: Compeleted it.
+int CEllipse::inShape(const int&x, const int&y) const {
+    if (x >= (new_x + new_bwidth - CShape::SCOPE) &&
+        y >= (new_y + new_bheight - CShape::SCOPE)) {
+        return 0;
+    }
+
+    // 2. 检查是否在虚线框及附近范围内
+    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
+        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
+        return 1;
+    }
+
+    // 3. 检查是否在椭圆内部或边界上
+    // 椭圆方程: ((x - centerX)^2)/a^2 + ((y - centerY)^2)/b^2 <= 1
+    float centerX = this->x + width / 2.0f;
+    float centerY = this->y + height / 2.0f;
+    float a = width / 2.0f;
+    float b = height / 2.0f;
+
+    float normalizedX = (x - centerX) / a;
+    float normalizedY = (y - centerY) / b;
+
+    if ((normalizedX * normalizedX + normalizedY * normalizedY) <= 1.0f) {
+        return 2;
+    }
+
+    // 4. 都不满足
+    return -1;
+
     return false;
 }

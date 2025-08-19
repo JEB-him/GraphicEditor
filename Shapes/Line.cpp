@@ -57,21 +57,22 @@ CCommand CLine::scale(CView* pView, const int& mouse_x, const int& mouse_y) {
         ex = sx + new_bwidth * 2 / 3;
         ey = sy + new_bheight * 2 / 3;
     } else {
-        sx = new_x + CShape::DIFF;
-        sy = new_y + CShape::DIFF;
+        sx = new_x + CShape::DIFF / 2;
+        sy = new_y + CShape::DIFF / 2;
         ex = sx + new_bwidth - CShape::DIFF;
         ey = sy + new_bheight - CShape::DIFF;
     }
     return cmd;
 }
 
-CCommand CLine::move(CView* pView, const int& x, const int& y) override {
+CCommand CLine::move(CView* pView, const int& x, const int& y)  {
     // 调用基类 move()
     CShape::move(pView, x, y);
-    this->sx = new_x + CShape::DIFF;
-    this->sy = new_y + CShape::DIFF;
+    this->sx = new_x + CShape::DIFF / 2;
+    this->sy = new_y + CShape::DIFF / 2;
     this->ex = new_x - CShape::DIFF + new_bwidth;
     this->ey = new_y - CShape::DIFF + new_bheight;
+    return { };
 }
 
 bool CLine::draw(Gdiplus::Graphics& graphics) {
@@ -121,7 +122,41 @@ CCommand CLine::rotate(float angle) {
     return {};
 }
 
-bool CLine::inShape(const int&x, const int&y) const {
-    // TODO By Hao Jiang: Compeleted it.
+int CLine::inShape(const int&x, const int&y) const {
+    // 1. 检查是否在虚线框右下角范围内
+    if (x >= (new_x + new_bwidth - CShape::SCOPE) &&
+        y >= (new_y + new_bheight - CShape::SCOPE)) {
+        return 0;
+    }
+
+    // 2. 检查是否在虚线框及附近范围内
+    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
+        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
+        return 1;
+    }
+
+    // 3. 检查是否在线段附近
+    // 计算点到线段的距离
+    float lineLength = sqrt(pow(ex - sx, 2) + pow(ey - sy, 2));
+    if (lineLength == 0) {  // 线段长度为0，退化为点
+        if (sqrt(pow(x - sx, 2) + pow(y - sy, 2)) <= CShape::SCOPE) {
+            return 2;
+        }
+    }
+    else {
+        // 计算点到线段的距离
+        float distance = abs((ey - sy) * x - (ex - sx) * y + ex * sy - ey * sx) /
+            sqrt(pow(ey - sy, 2) + pow(ex - sx, 2));
+
+        // 检查点是否在线段的投影范围内
+        float dotProduct = ((x - sx) * (ex - sx) + (y - sy) * (ey - sy)) / pow(lineLength, 2);
+
+        if (distance <= CShape::SCOPE && dotProduct >= 0 && dotProduct <= 1) {
+            return 2;
+        }
+    }
+
+    // 4. 都不满足
+    return -1;
     return false;
 }

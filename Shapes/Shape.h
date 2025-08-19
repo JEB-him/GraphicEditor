@@ -12,12 +12,13 @@ constexpr Color BRUSH_TRANSPARENT = RGB(255, 255, 255);
 
 enum EditMode : unsigned int { // SELECT will be used in the case when father item is selected
     // and edit it's children shape.
-    NONE    = 0b00000,
-    SELECT  = 0b00001,
-    SCALE   = 0b00010,
-    ROTATE  = 0b00100,
-    DELETED = 0b01000,
-    CREATE  = 0b10000
+    NONE = 0b000000,
+    SELECT = 0b000001,
+    SCALE = 0b000010,
+    ROTATE = 0b000100,
+    DELETED = 0b001000,
+    MOVE = 0b010000,
+    CREATE = 0b100000
 };
 
 class CShape : public CObject {
@@ -89,7 +90,8 @@ public:
     /**
      * @brief Judge if the point in the shape.
      */
-    virtual bool inShape(const int& x, const int& y) const = 0; 
+    virtual int inShape(const int& x, const int& y) const = 0; 
+
 
 protected:
     bool drawSelectedBorder(Gdiplus::Graphics& graphics);
@@ -98,6 +100,7 @@ protected:
     // The initial width and height of a shape
     const static int LENGTH;
     const static int DIFF;
+    const static int SCOPE;  // 控制鼠标检测范围
     const static Color selected_border_color;
     const static int selected_border_width;
     // A pointer point to view.

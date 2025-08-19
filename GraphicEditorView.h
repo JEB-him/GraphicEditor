@@ -89,6 +89,7 @@ public:
 	afx_msg void EllipseMode();
 	afx_msg void Set_LineCategory1();
 	afx_msg void Set_LineCategory2();
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // GraphicEditorView.cpp 中的调试版本

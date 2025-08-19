@@ -22,10 +22,10 @@ CTriangle::CTriangle(
     ),
     points {Gdiplus::PointF(x1, y1), Gdiplus::PointF(x2, y2), Gdiplus::PointF(x3, y3)} {
         CRect rect = getSmallRect();
-        if (rect.left > CShape::DIFF) rect.left = rect.left - CShape::DIFF;
-        if (rect.top > CShape::DIFF) rect.top = rect.top - CShape::DIFF;
-        if (rect.right > CShape::DIFF) rect.right = rect.right + CShape::DIFF;
-        if (rect.bottom > CShape::DIFF) rect.bottom = rect.bottom + CShape::DIFF;
+        if (rect.left > CShape::DIFF) rect.left = rect.left - CShape::DIFF / 2;
+        if (rect.top > CShape::DIFF) rect.top = rect.top - CShape::DIFF / 2;
+        if (rect.right > CShape::DIFF) rect.right = rect.right + CShape::DIFF / 2;
+        if (rect.bottom > CShape::DIFF) rect.bottom = rect.bottom + CShape::DIFF / 2;
         this->new_x = rect.left, this->new_y = rect.top;
         this->new_bheight = rect.bottom - rect.top;
         this->new_bwidth = rect.right - rect.left;
@@ -69,14 +69,14 @@ CCommand CTriangle::scale(CView* pView, const int& mouse_x, const int& mouse_y) 
     new_bheight *= mult;
 
     for (int i = 0;i < 3; ++i) {
-        points[i].X = (points[i].X - new_x - CShape::DIFF) * mult + new_x + CShape::DIFF;
-        points[i].Y = (points[i].Y - new_x - CShape::DIFF) * mult + new_x + CShape::DIFF;
+        points[i].X = (points[i].X - new_x - CShape::DIFF / 2) * mult + new_x + CShape::DIFF / 2;
+        points[i].Y = (points[i].Y - new_x - CShape::DIFF / 2) * mult + new_x + CShape::DIFF / 2;
     }
 
     return {};
 }
 
-CCommand CTriangle::move(CView* pView, const int& x, const int& y) override {
+CCommand CTriangle::move(CView* pView, const int& x, const int& y) {
     // 先求相对坐标
     float rposx[3], rposy[3];
     for (int i = 0; i < 3; ++i) {
@@ -89,6 +89,7 @@ CCommand CTriangle::move(CView* pView, const int& x, const int& y) override {
         points[i].X = rposx[i] + new_x;
         points[i].Y = rposy[i] + new_y;
     }
+    return { };
 }
 
 bool CTriangle::draw(Gdiplus::Graphics& graphics) {
@@ -137,7 +138,38 @@ CCommand CTriangle::rotate(float angle) {
     return {};
 }
 
-bool CTriangle::inShape(const int&x, const int&y) const {
-    // TODO By Hao Jiang: Compeleted it.
-    return false;
+int CTriangle::inShape(const int&x, const int&y) const {
+    CRect rect = getSmallRect();
+
+    // 1. 检查是否在虚线框右下角范围内
+    if (x >= (rect.right - CShape::SCOPE) &&
+        y >= (rect.bottom - CShape::SCOPE)) {
+        return 0;
+    }
+    
+    // 2. 检查是否在虚线框及附近范围内
+    if (x >= (rect.left - CShape::SCOPE) && x <= (rect.right + CShape::SCOPE) && (y >= (rect.top - CShape::SCOPE) && y <= (rect.bottom + CShape::SCOPE)))
+        return 1;
+    
+
+    // 3. 检查是否在三角形内部
+    // 使用重心坐标法判断点是否在三角形内
+    auto sign = [](Gdiplus::PointF p1, Gdiplus::PointF p2, Gdiplus::PointF p3) {
+        return (p1.X - p3.X) * (p2.Y - p3.Y) - (p2.X - p3.X) * (p1.Y - p3.Y);
+    };
+
+    Gdiplus::PointF pt(static_cast<float>(x), static_cast<float>(y));
+    float d1 = sign(pt, points[0], points[1]);
+    float d2 = sign(pt, points[1], points[2]);
+    float d3 = sign(pt, points[2], points[0]);
+
+    bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+    bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+    if (!(hasNeg && hasPos)) {
+        return 2;
+    }
+
+    // 4. 都不满足
+    return -1;
 }

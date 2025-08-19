@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CGraphicEditorView, CView)
 	ON_WM_RBUTTONUP()    // 映射右键释放消息
     ON_WM_ERASEBKGND()   // 添加背景擦除处理
     ON_WM_SIZE()         // 添加窗口大小改变处理
+    ON_WM_KEYDOWN()      //按键消息映射
     ON_COMMAND(ID_32773, &CGraphicEditorView::Set_Linecolor)
     ON_COMMAND(ID_32774, &CGraphicEditorView::Set_FIlledcolor)
     ON_COMMAND(ID_32775, &CGraphicEditorView::LineMode)
@@ -188,21 +189,21 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
         return;
     } else if (m_opMode == OperationMode::OP_SELECT) {       // 选择模式
         if (selected_shape == nullptr) throw std::runtime_error("Invalid opMode.");
-        int back_code = selected_shape->inShape();
+        int back_code = selected_shape->inShape(point.x,point.y);
         switch(back_code) {
             case 0:
                 m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
-                selected_shape.setMode(EditMode::SCALE);
+                selected_shape->setMode(EditMode::SCALE);
                 break;
             case 1:
                 m_opMode = OperationMode::OP_MOVE | OperationMode::OP_SELECT;
-                selected_shape.setMode(EditMode::MOVE);
+                selected_shape->setMode(EditMode::MOVE);
                 break;
             case 2:
                 break;
             case -1:
                 m_opMode = OperationMode::OP_NONE;
-                selected_shape.setMode(EditMode::NONE);
+                selected_shape->setMode(EditMode::NONE);
                 break;
             default:
                 throw std::runtime_error("Unknown Back Code.");
@@ -212,13 +213,14 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
         CGraphicEditorDoc* pDoc = GetDocument();
         if (pDoc) {
             const CObArray& shapes = pDoc->GetShapes();
-            for (int i = 0; i < shapes.GetCount(); i++) {
+            for (int i = shapes.GetCount() - 1; i >= 0; i--) {
                 if (CShape* pShape = dynamic_cast<CShape*>(shapes[i])) {
-                    int back_code = pShape->inShape();
+                    int back_code = pShape->inShape(point.x, point.y);
                     if (back_code == 2) {
                         selected_shape = pShape;
                         pShape->setMode(EditMode::SELECT);
                         m_opMode = OperationMode::OP_SELECT;
+                        Invalidate();
                         break;
                     }
                 }
@@ -251,34 +253,23 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
 
 afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_SCALE) {
-        //// 获取原始边界矩形
-        //CRect oldRect = selected_shape->getBoundingRect();
-
-        //// 更新形状
-        //selected_shape->scale(this, point.x, point.y);
-
-        //// 获取新边界矩形
-        //CRect newRect = selected_shape->getBoundingRect();
-
-        //// 计算需要重绘的区域
-        //CRect updateRect;
-        //updateRect.UnionRect(&oldRect, &newRect);  // 合并新旧区域
-
-        //// 添加边界余量（避免抗锯齿导致的残留）
-        //updateRect.InflateRect(5, 5);
-        //// 只重绘受影响区域
         selected_shape->scale(this, point.x, point.y);
         Invalidate();
         //InvalidateRect(updateRect);  // 关键调用
-    } else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
+    }
+    else if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {
         m_points[m_pn].X = point.x;
         m_points[m_pn].Y = point.y;
         Invalidate();
-    } else if (m_opMode & OperationMode::OP_MOVE) {
+    }
+    else if (m_opMode & OperationMode::OP_CREATE) {
+        return;
+    }
+    else if (m_opMode & OperationMode::OP_MOVE) {
         selected_shape->move(this, point.x, point.y);
         Invalidate();
     } else if (m_opMode == OperationMode::OP_SELECT) {
-        int back_code = selected_shape->inShape();
+        int back_code = selected_shape->inShape(point.x, point.y);
         switch(back_code) {
             case 0:
                 ::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));
@@ -293,7 +284,7 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
             default:
                 throw std::runtime_error("Unknown Back Code.");
         }
-    } else if (m_opMode == OperationMode::NONE) {
+    } else if (m_opMode == OperationMode::OP_NONE) {
         return;
     } else {
         throw std::runtime_error("Unkonwn Opretion Mode.");
@@ -508,4 +499,36 @@ void CGraphicEditorView::Set_LineCategory1()
 void CGraphicEditorView::Set_LineCategory2()
 {
     m_border_style = PS_DASH;
+}
+
+
+void CGraphicEditorView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+    BOOL bCtrl = GetKeyState(VK_CONTROL) < 0;
+    BOOL bShift = GetKeyState(VK_SHIFT) < 0;
+
+    switch (nChar)
+    {
+    case VK_ESCAPE:
+        m_opMode = OperationMode::OP_NONE;
+        for (int i = 0; i < m_pn; i++) {
+            m_points[i] ={-1,-1};
+        }
+        m_pn = 0;
+        selected_shape->setMode(0);
+        selected_shape = nullptr;
+        Invalidate();
+        break;
+
+    case 'G':
+        if (bCtrl && bShift)
+        {
+        }
+        else if (bCtrl)
+        {
+        }
+        break;
+    }
+
+    CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }

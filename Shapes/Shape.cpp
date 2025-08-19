@@ -8,6 +8,7 @@
 
 const int   CShape::LENGTH                = 1;
 const int   CShape::DIFF                  = 20;
+const int   CShape::SCOPE                 = 5;
 const Color CShape::selected_border_color = RGB(179,179,179);
 const int   CShape::selected_border_width = 2;
 float CShape::z_max = 0;

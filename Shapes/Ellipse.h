@@ -22,7 +22,7 @@ public:
     CCommand scale(CView* pView, const int& mouse_x, const int& mouse_y) override;
     CCommand move(CView* pView, const int& x, const int& y) override;
     CCommand rotate(float angle) override;
-    bool inShape(const int&x, const int&y) const override;
+    int inShape(const int&x, const int&y) const override;
     bool draw(Gdiplus::Graphics& graphics) override;
 
 private:
