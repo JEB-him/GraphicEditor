@@ -158,5 +158,4 @@ int CLine::inShape(const int&x, const int&y) const {
     }
     // 4. 都不满足
     return -1;
-    return false;
 }

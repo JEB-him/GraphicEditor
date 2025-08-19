@@ -58,6 +58,8 @@ protected:
     BorderWidth m_border_width = 2;
     BorderStyle m_border_style = PS_SOLID;
     int         m_pn           = 0;
+    int         pos_x          = -1;
+    int         pos_y          = -1;
     Gdiplus::PointF      m_points[MAX_POINTS];
 
     // Opration object

@@ -21,6 +21,7 @@ CShape::CShape(
     const BorderWidth& border_width,
     const Color& border_color,
     const BorderStyle border_style) :
+    father(this),
     z(z),
     new_x(x),
     new_y(y),
@@ -33,12 +34,25 @@ CShape::CShape(
 }
 
 CShape::CShape(
-    ) {
+    ):
+    father(this),
+    z(-1),
+    new_x(-1),
+    new_y(-1),
+    new_bwidth(-1),
+    new_bheight(-1),
+    filled_color(-1), // 白色
+    border_width(-1),
+    border_color(-1),
+    border_style(-1) {
 }
 
-const float& CShape::getZ() const
-{
+const float& CShape::getZ() const {
     return this->z;
+}
+
+const CRect& CShape::getRect() const {
+    return {this->new_x, this->new_y, this->new_x + this->new_bwidth, this->new_y + this->new_bheight};
 }
 
 const unsigned int& CShape::getMode() const {
@@ -51,6 +65,16 @@ int CShape::addMode(const unsigned int& mode) {
     }
     this->mode |= mode;
     return 0;
+}
+
+CShape* CShape::getFather() {
+    if (father == this) return this;
+    return father->getFather();
+}
+
+bool CShape::setFather(CShape* father) {
+    this->father = father;
+    return true;
 }
 
 int CShape::setMode(const unsigned int& mode) {
@@ -66,7 +90,6 @@ void CShape::Serialize(CArchive& ar) {
     CObject::Serialize(ar);
     if (ar.IsStoring()) {
         // 存储数据
-        ar << LENGTH;
         ar << z;
         ar << old_x;
         ar << old_y;
@@ -97,6 +120,7 @@ void CShape::Serialize(CArchive& ar) {
         ar >> border_width;
         ar >> border_color;
         mode = EditMode::NONE;
+        father = this;
     }
 }
 
@@ -109,6 +133,7 @@ bool CShape::update() {
 }
 
 bool CShape::resize() {
+    // TODO: Complete it.
     return false;
 }
 
@@ -198,10 +223,10 @@ bool CShape::drawSelectedBorder(Gdiplus::Graphics& graphics) {
     }
     // 创建画笔和画刷
     Gdiplus::Pen pen(Gdiplus::Color(255, 
-                     GetRValue(selected_border_color), 
-                     GetGValue(selected_border_color), 
-                     GetBValue(selected_border_color)), 
-                     static_cast<Gdiplus::REAL>(selected_border_width));
+                     GetRValue(SELECTED_BORDER_COLOR), 
+                     GetGValue(SELECTED_BORDER_COLOR), 
+                     GetBValue(SELECTED_BORDER_COLOR)), 
+                     static_cast<Gdiplus::REAL>(SELECTED_BORDER_WIDTH));
     pen.SetDashStyle(Gdiplus::DashStyleDash);
 
     // 绘制边框

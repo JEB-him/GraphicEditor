@@ -199,6 +199,8 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
             case 1:
                 m_opMode = OperationMode::OP_MOVE | OperationMode::OP_SELECT;
                 selected_shape->setMode(EditMode::MOVE | EditMode::SELECT);
+                pos_x = point.x;
+                pos_y = point.y;
                 break;
             case 2:
                 break;
@@ -272,7 +274,10 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
     } else if (m_opMode & OperationMode::OP_CREATE) {
         return;
     } else if (m_opMode & OperationMode::OP_MOVE) {
-        selected_shape->move(this, point.x, point.y);
+        CRect rect = selected_shape->getRect();
+        int x = point.x - pos_x + rect.left;
+        int y = point.y - pos_y + rect.top;
+        selected_shape->move(this, x, y);
         Invalidate();
     } else if (m_opMode == OperationMode::OP_SELECT) {
         int back_code = selected_shape->inShape(point.x, point.y);

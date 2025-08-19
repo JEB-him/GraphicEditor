@@ -38,15 +38,17 @@ public:
     );
 
     // The combination needn't set layer.
-    CShape(
-    );
+    CShape();
 
     // TODO copy constructor
     const float& getZ() const;
+    const CRect& getRect() const;
     const unsigned int& getMode() const;
-    int addMode(const unsigned int& mode);
+    CShape* getFather();
+    bool setFather(CShape* father);
     // TODO: Should overrided by combination.
     virtual int setMode(const unsigned int& mode);
+    virtual int addMode(const unsigned int& mode);
 
     virtual ~CShape() = default;
 
@@ -101,9 +103,12 @@ protected:
     const static float LENGTH;
     const static float DIFF;
     const static float SCOPE;  // 控制鼠标检测范围
-    const static Color selected_border_color;
-    const static int selected_border_width;
+    const static Color SELECTED_BORDER_COLOR;
+    const static int SELECTED_BORDER_WIDTH;
     // A pointer point to view.
+
+    // A pointer point to father CShape.
+    CShape* father;
 
     // z pos
     // The range is [0, 100)

@@ -33,7 +33,8 @@ END_MESSAGE_MAP()
 CGraphicEditorDoc::CGraphicEditorDoc() noexcept
 {
 	// TODO: 在此添加一次性构造代码
-
+    m_combinations.RemoveAll();
+    m_shapes.RemoveAll();
 }
 
 CGraphicEditorDoc::~CGraphicEditorDoc()
@@ -48,6 +49,17 @@ CGraphicEditorDoc::~CGraphicEditorDoc()
         }
     }
     m_shapes.RemoveAll();
+
+    const int count = m_combinations.GetCount();
+    for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
+    {
+        if (m_combinations[i] != nullptr)
+        {
+            delete m_shapes[i];
+            m_combinations.SetAt(i, nullptr);  // 设置为nullptr
+        }
+    }
+    m_combinations.RemoveAll();
 }
 
 
@@ -62,30 +74,21 @@ bool CGraphicEditorDoc::AddShape(CShape* pShape) {
     return true;
 }
 
-int CGraphicEditorDoc::GetIndex(const CShape* pShape) const
+int CGraphicEditorDoc::GetIndex(const CShape* pShape, const CObArray& arr) const
 {
     if (pShape == nullptr)
         return -1;
 
-    // 遍历数组查找匹配指针
-    for (int i = 0; i < m_shapes.GetCount(); i++)
+    // 遍历形状数组查找匹配指针
+    for (int i = 0; i < arr.GetCount(); i++)
     {
-        if (m_shapes[i] == pShape)  // 直接比较指针地址
+        if (arr[i] == pShape)  // 直接比较指针地址
         {
             return i;
         }
     }
 
     return -1;  // 未找到
-}
-
-CShape* CGraphicEditorDoc::GetShapeAt(int index) const
-{
-    if (index >= 0 && index < m_shapes.GetCount())
-    {
-        return dynamic_cast<CShape*>(m_shapes[index]);
-    }
-    return nullptr;
 }
 
 bool CGraphicEditorDoc::RemoveShapeAt(int index)
@@ -95,14 +98,20 @@ bool CGraphicEditorDoc::RemoveShapeAt(int index)
         delete m_shapes[index];  // 释放内存
         m_shapes.RemoveAt(index);
         SetModifiedFlag(TRUE);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }                                       // Remove shape by index
 
 bool CGraphicEditorDoc::RemoveAllShapes() {
-    for (int i = 0; i < m_shapes.GetCount(); i++) {
-        delete m_shapes[i];
+    const int count = m_shapes.GetCount();
+    for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
+    {
+        if (m_shapes[i] != nullptr)
+        {
+            delete m_shapes[i];
+            m_shapes.SetAt(i, nullptr);  // 设置为nullptr
+        }
     }
     m_shapes.RemoveAll();
     SetModifiedFlag(TRUE);
@@ -146,6 +155,42 @@ const CObArray& CGraphicEditorDoc::GetShapes() const {
     return m_shapes;
 }
 
+bool AddCombination(CShape* pComb) {
+    if (pCombination == nullptr) {
+        return false;
+    }
+    m_combinations.Add(pCombination);  // 添加组合
+    SetModifiedFlag(TRUE);  // 标记文档已修改
+    return true;
+}
+
+bool CGraphicEditorDoc::RemoveCombinationAt(int index) {
+    if (index >= 0 && index < m_combinations.GetCount()) {
+        delete m_combinations[index];  // 释放内存
+        m_combinations.RemoveAt(index);
+        SetModifiedFlag(TRUE);  // 标记文档已修改
+        return true;
+    }
+    return false;
+}
+bool CGraphicEditorDoc::RemoveAllCombinations() {
+    const int count = m_combinations.GetCount();
+    for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
+    {
+        if (m_combinations[i] != nullptr)
+        {
+            delete m_shapes[i];
+            m_combinations.SetAt(i, nullptr);  // 设置为nullptr
+        }
+    }
+    m_combinations.RemoveAll();
+    SetModifiedFlag(TRUE);  // 标记文档已修改
+    return true;
+}
+const CObArray& CGraphicEditorDoc::GetCombinations() const {
+    return m_combinations;
+}
+
 BOOL CGraphicEditorDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
@@ -175,14 +220,17 @@ void CGraphicEditorDoc::Serialize(CArchive& ar)
 
         // CObArray会自动序列化其内容
         m_shapes.Serialize(ar);
+        m_combinations.Serialize(ar);
     } else {
         // 加载数据时的逻辑
 
         // 先清空现有数据
         RemoveAllShapes();
+        RemoveAllCombinations();
 
         // CObArray会自动反序列化其内容
         m_shapes.Serialize(ar);
+        m_combinations.Serialize(ar);
 
         // 可以添加其他需要加载的数据
         // ar >> m_someOtherData;

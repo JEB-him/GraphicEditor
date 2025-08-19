@@ -20,14 +20,18 @@ public:
 
 // 操作
 public:
-	bool AddShape(CShape* pShape);        // 添加图形
-    int GetIndex(const CShape* pShape) const;  // Get index by the value of the
-                                          // CShape pointer.
-    CShape* GetShapeAt(int index) const;  // Get shape pointer by index
-    bool RemoveShapeAt(int index);        // Remove shape by index
-	bool RemoveAllShapes();               // 移除所有图形
-	bool SortShapes();                    // 按照 z 坐标排序
-	const CObArray& GetShapes() const;    // 获取图形列表
+	bool AddShape(CShape* pShape);             // 添加图形
+    bool RemoveShapeAt(int index);             // Remove shape by index
+	bool RemoveAllShapes();                    // 移除所有图形
+	bool SortShapes();                         // 按照 z 坐标排序
+	const CObArray& GetShapes() const;         // 获取图形列表
+    bool AddCombination(CShape* pComb);        // 添加组合
+    bool RemoveCombinationAt(int index);       // 移除组合
+    bool RemoveAllCombinations();              // 清空组合
+    const CObArray& GetCombinations() const;   // 获取所有组合
+    int GetIndex(const CShape* pShape,
+                 const CObArray& arr) const;   // Get index by the value of the
+                                               // CShape pointer.
 
 protected:
     static bool CmpByz(const void* elem1, const void* elem2);
@@ -52,6 +56,7 @@ public:
 protected:
     // Store all shapes.
     CObArray m_shapes;
+    CObArray m_combinations;
 
 // 生成的消息映射函数
 protected:
