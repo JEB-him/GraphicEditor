@@ -147,9 +147,7 @@ int CTriangle::inShape(const int&x, const int&y) const {
         return 0;
     }
     
-    // 2. 检查是否在虚线框及附近范围内
-    if (x >= (rect.left - CShape::SCOPE) && x <= (rect.right + CShape::SCOPE) && (y >= (rect.top - CShape::SCOPE) && y <= (rect.bottom + CShape::SCOPE)))
-        return 1;
+    
     
 
     // 3. 检查是否在三角形内部
@@ -169,7 +167,9 @@ int CTriangle::inShape(const int&x, const int&y) const {
     if (!(hasNeg && hasPos)) {
         return 2;
     }
-
+    // 2. 检查是否在虚线框及附近范围内
+    if (x >= (rect.left - CShape::SCOPE) && x <= (rect.right + CShape::SCOPE) && (y >= (rect.top - CShape::SCOPE) && y <= (rect.bottom + CShape::SCOPE)))
+        return 1;
     // 4. 都不满足
     return -1;
 }

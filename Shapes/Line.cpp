@@ -129,11 +129,7 @@ int CLine::inShape(const int&x, const int&y) const {
         return 0;
     }
 
-    // 2. 检查是否在虚线框及附近范围内
-    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
-        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
-        return 1;
-    }
+    
 
     // 3. 检查是否在线段附近
     // 计算点到线段的距离
@@ -155,7 +151,11 @@ int CLine::inShape(const int&x, const int&y) const {
             return 2;
         }
     }
-
+    // 2. 检查是否在虚线框及附近范围内
+    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
+        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
+        return 1;
+    }
     // 4. 都不满足
     return -1;
     return false;

@@ -111,11 +111,7 @@ int CEllipse::inShape(const int&x, const int&y) const {
         return 0;
     }
 
-    // 2. 检查是否在虚线框及附近范围内
-    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
-        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
-        return 1;
-    }
+    
 
     // 3. 检查是否在椭圆内部或边界上
     // 椭圆方程: ((x - centerX)^2)/a^2 + ((y - centerY)^2)/b^2 <= 1
@@ -130,7 +126,11 @@ int CEllipse::inShape(const int&x, const int&y) const {
     if ((normalizedX * normalizedX + normalizedY * normalizedY) <= 1.0f) {
         return 2;
     }
-
+    // 2. 检查是否在虚线框及附近范围内
+    if ((x >= (new_x - CShape::SCOPE) && x <= (new_x + new_bwidth + CShape::SCOPE)) &&
+        (y >= (new_y - CShape::SCOPE) && y <= (new_y + new_bheight + CShape::SCOPE))) {
+        return 1;
+    }
     // 4. 都不满足
     return -1;
 
