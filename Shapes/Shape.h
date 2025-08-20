@@ -2,7 +2,7 @@
 #pragma once
 
 #include "afxwin.h"
-#include "Command.h"
+#include "Commands/Command.h"
 
 typedef COLORREF Color;
 typedef int      BorderWidth;
@@ -137,8 +137,8 @@ protected:
     Color filled_color {};
 
     // Border
-    BorderStyle border_style {};
-    BorderWidth border_width {};
+    BorderWidth border_width{};
+    BorderStyle border_style{};
     Color border_color {};
 
     // Mode

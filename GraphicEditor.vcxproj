@@ -188,8 +188,11 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Commands\AddShapeCommand.h" />
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands\GraphicCommandManager.h" />
+    <ClInclude Include="Commands\Command.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphicEditor.h" />
@@ -200,6 +203,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Shapes\Combination.h" />
     <ClInclude Include="Shapes\Ellipse.h" />
     <ClInclude Include="Shapes\Line.h" />
     <ClInclude Include="Shapes\Rectangle.h" />
@@ -209,8 +213,10 @@
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Commands\AddShapeCommand.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Commands\GraphicCommandManager.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="GraphicEditor.cpp" />
     <ClCompile Include="GraphicEditorDoc.cpp" />
@@ -224,6 +230,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp" />
+    <ClCompile Include="Shapes\Combination.cpp" />
     <ClCompile Include="Shapes\Ellipse.cpp" />
     <ClCompile Include="Shapes\Line.cpp" />
     <ClCompile Include="Shapes\Rectangle.cpp" />

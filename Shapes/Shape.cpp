@@ -9,8 +9,8 @@
 const float   CShape::LENGTH                = 1;
 const float   CShape::DIFF                  = 20;
 const float   CShape::SCOPE                 = 5;
-const Color CShape::selected_border_color = RGB(179,179,179);
-const int   CShape::selected_border_width = 2;
+const Color CShape::SELECTED_BORDER_COLOR = RGB(179,179,179);
+const int   CShape::SELECTED_BORDER_WIDTH = 2;
 float CShape::z_max = 0;
 
 CShape::CShape(
@@ -52,7 +52,12 @@ const float& CShape::getZ() const {
 }
 
 const CRect& CShape::getRect() const {
-    return {this->new_x, this->new_y, this->new_x + this->new_bwidth, this->new_y + this->new_bheight};
+    return {
+        static_cast<int>(this->new_x),
+        static_cast<int>(this->new_y),
+        static_cast<int>(this->new_x + this->new_bwidth),
+        static_cast<int>(this->new_y + this->new_bheight)
+    };
 }
 
 const unsigned int& CShape::getMode() const {
@@ -150,7 +155,7 @@ CCommand CShape::move(CView* pView, const int& x, const int& y) {
     int height = clientRect.Height();
 
     if (x < 0 || y < 0 || x > width || y > height) {
-        throw std::logic_error("x/y is invalid.");
+        return {};
     }
 
     if (!(width - x < new_bwidth)) {

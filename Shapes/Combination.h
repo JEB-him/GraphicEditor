@@ -6,7 +6,9 @@
 class CCombination : public CShape {
 public:
     CCombination(const CObArray& arr= CObArray());
-    ~CCombination() = default;
+    ~CCombination();
+
+    void updateRect();
 
     int setMode(const unsigned int& mode) override;
     int addMode(const unsigned int& mode) override;

@@ -72,6 +72,18 @@
     <ClInclude Include="Command.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Shapes\Combination.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\Command.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\GraphicCommandManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\AddShapeCommand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicEditor.cpp">
@@ -120,6 +132,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Command.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Shapes\Combination.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\GraphicCommandManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\AddShapeCommand.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

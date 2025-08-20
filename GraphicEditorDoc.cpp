@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "Shapes/Shape.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -39,7 +40,7 @@ CGraphicEditorDoc::CGraphicEditorDoc() noexcept
 
 CGraphicEditorDoc::~CGraphicEditorDoc()
 {
-    const int count = m_shapes.GetCount();
+    int count = m_shapes.GetCount();
     for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
     {
         if (m_shapes[i] != nullptr)
@@ -50,7 +51,7 @@ CGraphicEditorDoc::~CGraphicEditorDoc()
     }
     m_shapes.RemoveAll();
 
-    const int count = m_combinations.GetCount();
+    count = m_combinations.GetCount();
     for (int i = count - 1; i >= 0; i--)  // 反向遍历更安全
     {
         if (m_combinations[i] != nullptr)
@@ -155,11 +156,11 @@ const CObArray& CGraphicEditorDoc::GetShapes() const {
     return m_shapes;
 }
 
-bool AddCombination(CShape* pComb) {
-    if (pCombination == nullptr) {
+bool CGraphicEditorDoc::AddCombination(CShape* pComb) {
+    if (pComb == nullptr) {
         return false;
     }
-    m_combinations.Add(pCombination);  // 添加组合
+    m_combinations.Add(pComb);  // 添加组合
     SetModifiedFlag(TRUE);  // 标记文档已修改
     return true;
 }
@@ -179,7 +180,7 @@ bool CGraphicEditorDoc::RemoveAllCombinations() {
     {
         if (m_combinations[i] != nullptr)
         {
-            delete m_shapes[i];
+            delete m_combinations[i];
             m_combinations.SetAt(i, nullptr);  // 设置为nullptr
         }
     }

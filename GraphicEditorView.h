@@ -58,18 +58,26 @@ protected:
     BorderWidth m_border_width = 2;
     BorderStyle m_border_style = PS_SOLID;
     int         m_pn           = 0;
-    int         pos_x          = -1;
-    int         pos_y          = -1;
+    int         horizon        = -1;
+    int         vertical       = -1;
     Gdiplus::PointF      m_points[MAX_POINTS];
 
     // Opration object
-    CShape* selected_shape = nullptr;
+    CShape*  selected_shape = nullptr;
+	CObArray selected;
 
 // 内部函数
 protected:
     void CreateShape(const int& x = 0, const int& y = 0);
     void ClearPoints();
     void DrawPoints(Gdiplus::Graphics& graphics);
+	void ClearSelected();
+	bool AddSelected(CShape* pShape);
+	bool IsSelected(CShape* pShape);
+	bool RemoveSelected(CShape* pShape);
+	bool CtrlClick(CPoint point);
+	bool UncombSelected();
+	bool CombSelected();
 
 // 生成的消息映射函数
 protected:

@@ -6,7 +6,6 @@
 #pragma once
 
 #include <afxcoll.h>
-#include "Shapes/Shape.h"
 
 
 class CGraphicEditorDoc : public CDocument
@@ -29,9 +28,8 @@ public:
     bool RemoveCombinationAt(int index);       // 移除组合
     bool RemoveAllCombinations();              // 清空组合
     const CObArray& GetCombinations() const;   // 获取所有组合
-    int GetIndex(const CShape* pShape,
-                 const CObArray& arr) const;   // Get index by the value of the
-                                               // CShape pointer.
+    int GetIndex(const CShape* pShape,         // Get index by the value of the
+                 const CObArray& arr) const;   // CShape pointer.    
 
 protected:
     static bool CmpByz(const void* elem1, const void* elem2);

@@ -19,6 +19,7 @@
 #include "Shapes/Triangle.h"
 #include "Shapes/Line.h"
 #include "Shapes/Ellipse.h"
+#include "Shapes/Combination.h"
 
 #include <stdexcept>
 #include <typeinfo>
@@ -117,6 +118,12 @@ void CGraphicEditorView::OnDraw(CDC* pDC)
                     pShape->draw(bufferGraphics);
                 }
             }
+            const CObArray& combinations = pDoc->GetCombinations();
+            for (int i = 0; i < combinations.GetCount(); i++) {
+                if (CShape* pShape = dynamic_cast<CShape*>(combinations[i])) {
+                    pShape->draw(bufferGraphics);
+        }
+            }
         }
 
         DrawPoints(bufferGraphics);
@@ -176,8 +183,10 @@ void CGraphicEditorView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 
 afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
     if (m_opMode & OperationMode::OP_CREATE_TRIANGLE) {     // 创建三角形 
-        if (m_pn == 0 && selected_shape != nullptr)
+        if (m_pn == 0 && selected_shape != nullptr) {
             selected_shape->setMode(0);
+            ClearSelected();
+        }
         m_points[m_pn].X   = point.x;
         m_points[m_pn++].Y = point.y;
         if (m_pn == 3) CreateShape();
@@ -190,24 +199,36 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
         return;
     } else if (m_opMode == OperationMode::OP_SELECT) {       // 选择模式
         if (selected_shape == nullptr) throw std::runtime_error("Invalid opMode.");
+        if (GetKeyState(VK_CONTROL) < 0) {
+            CtrlClick(point);
+            Invalidate();
+            return;
+        }
+        if (selected.GetCount() > 1) {
+            ClearSelected();
+            m_opMode = NONE;
+            OnLButtonDown(nFlags, point);
+        }
         int back_code = selected_shape->inShape(point.x,point.y);
         switch(back_code) {
             case 0:
                 m_opMode = OperationMode::OP_SCALE | OperationMode::OP_SELECT;
                 selected_shape->setMode(EditMode::SCALE | EditMode::SELECT);
                 break;
-            case 1:
+            case 1: {
                 m_opMode = OperationMode::OP_MOVE | OperationMode::OP_SELECT;
                 selected_shape->setMode(EditMode::MOVE | EditMode::SELECT);
-                pos_x = point.x;
-                pos_y = point.y;
+                CRect rect = selected_shape->getRect();
+                horizon = rect.left - point.x;
+                vertical = rect.top - point.y;
                 break;
+            }
+
             case 2:
                 break;
             case -1:
                 m_opMode = OperationMode::OP_NONE;
-                selected_shape->setMode(EditMode::NONE);
-                selected_shape = nullptr;
+                ClearSelected();
                 Invalidate();
                 break;
             default:
@@ -222,8 +243,8 @@ afx_msg void CGraphicEditorView::OnLButtonDown(UINT nFlags, CPoint point) {
                 if (CShape* pShape = dynamic_cast<CShape*>(shapes[i])) {
                     int back_code = pShape->inShape(point.x, point.y);
                     if (back_code == 2) {
-                        selected_shape = pShape;
-                        pShape->setMode(EditMode::SELECT);
+                        pShape = pShape->getFather();
+                        AddSelected(pShape);
                         m_opMode = OperationMode::OP_SELECT;
                         Invalidate();
                         break;
@@ -241,6 +262,7 @@ afx_msg void CGraphicEditorView::OnLButtonUp(UINT nFlags, CPoint point) {
         if (m_opMode & OperationMode::OP_SCALE)
             m_opMode ^= OperationMode::OP_SCALE;
         if (selected_shape != nullptr) selected_shape->setMode(EditMode::SELECT);
+        AddSelected(selected_shape);
         Invalidate();
     } else if (m_opMode & OperationMode::OP_SCALE) {
         m_opMode = OperationMode::OP_SELECT;
@@ -274,9 +296,8 @@ afx_msg void CGraphicEditorView::OnMouseMove(UINT nFlags, CPoint point) {
     } else if (m_opMode & OperationMode::OP_CREATE) {
         return;
     } else if (m_opMode & OperationMode::OP_MOVE) {
-        CRect rect = selected_shape->getRect();
-        int x = point.x - pos_x + rect.left;
-        int y = point.y - pos_y + rect.top;
+        int x = point.x + horizon;
+        int y = point.y + vertical;
         selected_shape->move(this, x, y);
         Invalidate();
     } else if (m_opMode == OperationMode::OP_SELECT) {
@@ -396,8 +417,7 @@ void CGraphicEditorView::CreateShape(const int& x, const int& y) {
         throw std::runtime_error("Failed to add Shape.");
     }
     // 清除前一个 shape 残留的 EditMode
-    if (selected_shape != nullptr)
-        selected_shape->setMode(0);
+    ClearSelected();
     selected_shape = pShape;
     // Increase z_max
     ++CShape::z_max;
@@ -410,6 +430,7 @@ void CGraphicEditorView::ClearPoints() {
 }
 
 void CGraphicEditorView::DrawPoints(Gdiplus::Graphics& graphics) {
+    if (!(m_opMode & OperationMode::OP_CREATE_TRIANGLE)) return;
     // 创建画笔和画刷
     Gdiplus::Pen pen(Gdiplus::Color(255, 
                      GetRValue(m_border_color), 
@@ -456,6 +477,107 @@ void CGraphicEditorView::DrawPoints(Gdiplus::Graphics& graphics) {
                       static_cast<INT>(m_points[0].X), 
                       static_cast<INT>(m_points[0].Y));
 
+}
+
+void CGraphicEditorView::ClearSelected(){
+    selected_shape = nullptr;
+    for (int i = 0; i < selected.GetCount(); i++) {
+        if (CShape* pShape = dynamic_cast<CShape*>(selected[i])) {
+            pShape->setMode(EditMode::NONE);
+        }
+    }
+    selected.RemoveAll();
+    //m_opMode = OperationMode::OP_NONE;
+}
+
+bool CGraphicEditorView::AddSelected(CShape* pShape){
+    if (!pShape) return false;
+    if (!selected.GetCount()) {
+        selected_shape = pShape;
+    }
+    selected.Add(pShape);
+    pShape->setMode(EditMode::SELECT);
+    return true;
+}
+
+bool CGraphicEditorView::IsSelected(CShape* pShape){
+    if (!pShape) return false;
+    for (int i = 0; i < selected.GetCount(); ++i) {
+        if (selected[i] == pShape)
+            return true;
+    }
+    return false;
+}
+
+bool CGraphicEditorView::RemoveSelected(CShape* pShape){
+    if (!pShape) return false;
+    for (int i = 0; i < selected.GetCount(); ++i) {
+        if (selected[i] == pShape) {
+            selected.RemoveAt(i);
+            pShape->setMode(EditMode::NONE);
+        }
+    }
+    //if (!selected.GetCount()) m_opMode = OperationMode::OP_NONE;
+    return true;
+}
+
+bool CGraphicEditorView::CtrlClick(CPoint point){
+    CGraphicEditorDoc* pDoc = GetDocument();
+    if (pDoc) {
+        const CObArray& shapes = pDoc->GetShapes();
+        for (int i = shapes.GetCount() - 1; i >= 0; i--) {
+            if (CShape* pShape = dynamic_cast<CShape*>(shapes[i])) {
+                int back_code = pShape->inShape(point.x, point.y);
+                if (back_code == 2) {
+                    pShape = pShape->getFather();
+                    if (IsSelected(pShape))
+                        RemoveSelected(pShape);
+                    else
+                        AddSelected(pShape);
+                    // ! Must break,because count has been change
+                    break;
+                }
+            }
+        }
+    }
+    if (!selected.GetCount()) m_opMode = OperationMode::OP_NONE;
+    return true;
+}
+
+bool CGraphicEditorView::UncombSelected() {
+    CGraphicEditorDoc* pDoc = GetDocument();
+    const CObArray& combinations = pDoc->GetCombinations();
+    const int& count = selected.GetCount();
+    for (int i = count - 1; i >= 0; i--) {
+        if (CCombination* pComb = dynamic_cast<CCombination*>(selected[i])) {
+            RemoveSelected(pComb);
+            int index = pDoc->GetIndex(pComb, combinations);
+            pDoc->RemoveCombinationAt(index);
+        }
+    }
+    m_opMode = OperationMode::OP_NONE;
+    ClearSelected();
+    return true;
+}
+
+bool CGraphicEditorView::CombSelected() {
+    CGraphicEditorDoc* pDoc = GetDocument();
+
+    if (!pDoc) {
+        // TODO: Add error handle.
+        return false;
+    }
+
+    CShape* pComb = new CCombination(selected);
+    bool isSussussed = pDoc->AddCombination(pComb);
+    if (!isSussussed) {
+        delete pComb; // 添加失败时释放内存
+        throw std::runtime_error("Failed to add Combination.");
+}
+    // 清除前一个 shape 残留的 EditMode
+    ClearSelected();
+    AddSelected(pComb);
+    // Increase z_max
 }
 
 // CGraphicEditorView 消息处理程序
@@ -527,17 +649,23 @@ void CGraphicEditorView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
         }
         m_pn = 0;
         if (selected_shape) selected_shape->setMode(0);
-        selected_shape = nullptr;
+        ClearSelected();
         Invalidate();
         break;
 
     case 'G':
-        if (bCtrl && bShift)
-        {
+        if (bCtrl && bShift) {
+            if (!selected.GetCount()) {
+                return;
+            }
+            UncombSelected();
+        } else if (bCtrl) {
+            if (!selected.GetCount()) {
+                return;
         }
-        else if (bCtrl)
-        {
+            CombSelected();
         }
+        Invalidate();
         break;
     }
 
